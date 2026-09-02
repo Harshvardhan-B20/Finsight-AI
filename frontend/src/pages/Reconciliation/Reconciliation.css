@@ -1,0 +1,183 @@
+.reconciliation-page {
+  min-height: 100vh;
+  padding: 32px;
+  background: #f7f8fc;
+  color: #171923;
+}
+
+/* HEADER */
+
+.reconciliation-header {
+  margin-bottom: 28px;
+}
+
+.reconciliation-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #737784;
+}
+
+.reconciliation-header h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.reconciliation-header p:last-child {
+  margin: 8px 0 0;
+  color: #737784;
+  font-size: 14px;
+}
+
+/* SUMMARY CARDS */
+
+.reconciliation-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.reconciliation-stat-card {
+  padding: 20px;
+  border: 1px solid #e7e8ee;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(20, 24, 40, 0.04);
+}
+
+.reconciliation-stat-card span {
+  color: #737784;
+  font-size: 13px;
+}
+
+.reconciliation-stat-card h2 {
+  margin: 15px 0 0;
+  font-size: 25px;
+}
+
+/* MAIN CARD */
+
+.reconciliation-card {
+  border: 1px solid #e7e8ee;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(20, 24, 40, 0.04);
+  overflow: hidden;
+}
+
+.reconciliation-card-header {
+  padding: 22px;
+  border-bottom: 1px solid #ececf1;
+}
+
+.reconciliation-card-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.reconciliation-card-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #858894;
+}
+
+/* TABLE */
+
+.reconciliation-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.reconciliation-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 750px;
+}
+
+.reconciliation-table th,
+.reconciliation-table td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f3;
+}
+
+.reconciliation-table th {
+  background: #fafbfc;
+  color: #737784;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reconciliation-table td {
+  font-size: 13px;
+  color: #363944;
+}
+
+.reconciliation-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* STATUS */
+
+.reconciliation-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.reconciliation-status.completed {
+  background: #eaf7ef;
+  color: #238653;
+}
+
+.reconciliation-status.pending {
+  background: #fff4df;
+  color: #b87500;
+}
+
+/* EMPTY / ERROR / LOADING */
+
+.reconciliation-loading,
+.reconciliation-error,
+.reconciliation-empty {
+  padding: 50px 20px;
+  text-align: center;
+  color: #777b86;
+}
+
+.reconciliation-error {
+  color: #c44545;
+}
+
+/* TABLET */
+
+@media (max-width: 1100px) {
+  .reconciliation-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .reconciliation-page {
+    padding: 20px 16px;
+  }
+
+  .reconciliation-header h1 {
+    font-size: 27px;
+  }
+
+  .reconciliation-stats {
+    grid-template-columns: 1fr;
+  }
+}

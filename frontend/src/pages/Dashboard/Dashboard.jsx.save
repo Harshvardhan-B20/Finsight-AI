@@ -1,0 +1,1212 @@
+```jsx
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  BarChart3,
+  Bell,
+  BrainCircuit,
+  CreditCard,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Plus,
+  Receipt,
+  Settings,
+  TrendingUp,
+  Wallet,
+  X,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import "./Dashboard.css";
+
+const API_URL = "http://127.0.0.1:5000";
+
+function Dashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [transactions, setTransactions] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(true);
+  const [error, setError] = useState("");
+
+  const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const [savingTransaction, setSavingTransaction] = useState(false);
+  const [transactionMessage, setTransactionMessage] = useState("");
+
+  const [form, setForm] = useState({
+    type: "income",
+    description: "",
+    category: "Revenue",
+    amount: "",
+    status: "completed",
+  });
+
+  const getUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem("user")) || {};
+    } catch {
+      return {};
+    }
+  };
+
+  const user = getUser();
+  const userName = user.name || "User";
+  const userInitial = userName.charAt(0).toUpperCase();
+
+  // --------------------------------------------------
+  // FETCH TRANSACTIONS
+  // --------------------------------------------------
+
+  const fetchTransactions = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Authentication token not found. Please login again.");
+      setLoadingTransactions(false);
+      return;
+    }
+
+    try {
+      setError("");
+
+      const response = await fetch(`${API_URL}/api/transactions`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch transactions.");
+      }
+
+      setTransactions(
+        Array.isArray(data.transactions) ? data.transactions : []
+      );
+    } catch (err) {
+      console.error("Transaction fetch error:", err);
+      setError(err.message || "Unable to load transactions.");
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  // --------------------------------------------------
+  // FORM HANDLING
+  // --------------------------------------------------
+
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+
+    setForm((previousForm) => ({
+      ...previousForm,
+      [name]: value,
+    }));
+  };
+
+  const handleTypeChange = (event) => {
+    const type = event.target.value;
+
+    setForm((previousForm) => ({
+      ...previousForm,
+      type,
+      category: type === "income" ? "Revenue" : "Operations",
+    }));
+  };
+
+  // --------------------------------------------------
+  // ADD TRANSACTION
+  // --------------------------------------------------
+
+  const handleAddTransaction = async (event) => {
+    event.preventDefault();
+
+    setTransactionMessage("");
+
+    if (!form.description.trim()) {
+      setTransactionMessage("Please enter a description.");
+      return;
+    }
+
+    if (!form.amount || Number(form.amount) <= 0) {
+      setTransactionMessage("Please enter a valid amount.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setTransactionMessage("Please login again.");
+      return;
+    }
+
+    try {
+      setSavingTransaction(true);
+
+      const response = await fetch(`${API_URL}/api/transactions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: form.type,
+          description: form.description.trim(),
+          category: form.category,
+          amount: Number(form.amount),
+          status: form.status,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to create transaction."
+        );
+      }
+
+      setTransactionMessage("Transaction added successfully.");
+
+      setForm({
+        type: "income",
+        description: "",
+        category: "Revenue",
+        amount: "",
+        status: "completed",
+      });
+
+      await fetchTransactions();
+
+      setTimeout(() => {
+        setShowAddTransaction(false);
+        setTransactionMessage("");
+      }, 800);
+    } catch (err) {
+      console.error("Add transaction error:", err);
+      setTransactionMessage(
+        err.message || "Unable to add transaction."
+      );
+    } finally {
+      setSavingTransaction(false);
+    }
+  };
+
+  // --------------------------------------------------
+  // FORMATTING
+  // --------------------------------------------------
+
+  const formatCurrency = (amount) => {
+    return Number(amount || 0).toLocaleString("en-IN", {
+      maximumFractionDigits: 0,
+    });
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    const transactionDate = new Date(date);
+    const today = new Date();
+
+    if (transactionDate.toDateString() === today.toDateString()) {
+      return "Today";
+    }
+
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (transactionDate.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    }
+
+    return transactionDate.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+    });
+  };
+
+  // --------------------------------------------------
+  // FINANCIAL SUMMARY
+  // --------------------------------------------------
+
+  const financialSummary = useMemo(() => {
+    const income = transactions
+      .filter((transaction) => transaction.type === "income")
+      .reduce(
+        (total, transaction) =>
+          total + Number(transaction.amount || 0),
+        0
+      );
+
+    const expenses = transactions
+      .filter((transaction) => transaction.type === "expense")
+      .reduce(
+        (total, transaction) =>
+          total + Number(transaction.amount || 0),
+        0
+      );
+
+    const balance = income - expenses;
+
+    const savingsRate =
+      income > 0 ? (balance / income) * 100 : 0;
+
+    return {
+      income,
+      expenses,
+      balance,
+      savingsRate,
+    };
+  }, [transactions]);
+
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
+
+  return (
+    <div className="dashboard-page">
+
+      {/* SIDEBAR */}
+
+      <aside
+        className={`dashboard-sidebar ${
+          sidebarOpen ? "open" : ""
+        }`}
+      >
+        <div className="sidebar-top">
+          <Link to="/" className="dashboard-logo">
+            FinSight<span>AI</span>
+          </Link>
+
+          <button
+            className="close-sidebar"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav className="sidebar-nav">
+          <p className="nav-title">MAIN</p>
+
+          <a
+            href="#overview"
+            className="nav-item active"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <LayoutDashboard size={18} />
+            Overview
+          </a>
+
+          <a
+            href="#transactions"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <Receipt size={18} />
+            Transactions
+          </a>
+
+          <a
+            href="#analytics"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <BarChart3 size={18} />
+            Analytics
+          </a>
+
+          <a
+            href="#reconciliation"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <CreditCard size={18} />
+            Reconciliation
+          </a>
+
+          <p className="nav-title second-title">
+            INTELLIGENCE
+          </p>
+
+          <a
+            href="#ai-insights"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <BrainCircuit size={18} />
+            AI Insights
+          </a>
+
+          <p className="nav-title second-title">
+            ACCOUNT
+          </p>
+
+          <a
+            href="#settings"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <Settings size={18} />
+            Settings
+          </a>
+        </nav>
+
+        <div className="sidebar-bottom">
+          <div className="user-card">
+            <div className="user-avatar">
+              {userInitial}
+            </div>
+
+            <div>
+              <strong>{userName}</strong>
+              <span>Finance Admin</span>
+            </div>
+          </div>
+
+          <Link to="/" className="logout-button">
+            <LogOut size={17} />
+            Logout
+          </Link>
+        </div>
+      </aside>
+
+      {/* MOBILE OVERLAY */}
+
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* MAIN */}
+
+      <main className="dashboard-main">
+
+        {/* HEADER */}
+
+        <header className="dashboard-header">
+          <button
+            className="menu-button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open sidebar"
+          >
+            <Menu size={22} />
+          </button>
+
+          <div className="header-title">
+            <h1>Financial Overview</h1>
+            <p>
+              Monitor your financial health at a glance.
+            </p>
+          </div>
+
+          <button
+            className="notification-button"
+            aria-label="Notifications"
+          >
+            <Bell size={19} />
+            <span />
+          </button>
+        </header>
+
+        <section
+          className="dashboard-content"
+          id="overview"
+        >
+
+          {/* WELCOME */}
+
+          <div className="welcome-section">
+            <div>
+              <p className="welcome-label">
+                GOOD MORNING
+              </p>
+
+              <h2>
+                Welcome back, {userName} 👋
+              </h2>
+
+              <p>
+                Here's what's happening with your finances
+                today.
+              </p>
+            </div>
+
+            <button className="date-button">
+              August 2026
+            </button>
+          </div>
+
+          {/* ADD TRANSACTION BUTTON */}
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "20px",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() =>
+                setShowAddTransaction(!showAddTransaction)
+              }
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "11px 18px",
+                border: "none",
+                borderRadius: "10px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "14px",
+              }}
+            >
+              <Plus size={18} />
+
+              {showAddTransaction
+                ? "Close"
+                : "Add Transaction"}
+            </button>
+          </div>
+
+          {/* ADD TRANSACTION FORM */}
+
+```jsx
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  BarChart3,
+  Bell,
+  BrainCircuit,
+  CreditCard,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Plus,
+  Receipt,
+  Settings,
+  TrendingUp,
+  Wallet,
+  X,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import "./Dashboard.css";
+
+const API_URL = "http://127.0.0.1:5000";
+
+function Dashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [transactions, setTransactions] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(true);
+  const [error, setError] = useState("");
+
+  const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const [savingTransaction, setSavingTransaction] = useState(false);
+  const [transactionMessage, setTransactionMessage] = useState("");
+
+  const [form, setForm] = useState({
+    type: "income",
+    description: "",
+    category: "Revenue",
+    amount: "",
+    status: "completed",
+  });
+
+  const getUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem("user")) || {};
+    } catch {
+      return {};
+    }
+  };
+
+  const user = getUser();
+  const userName = user.name || "User";
+  const userInitial = userName.charAt(0).toUpperCase();
+
+  // --------------------------------------------------
+  // FETCH TRANSACTIONS
+  // --------------------------------------------------
+
+  const fetchTransactions = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Authentication token not found. Please login again.");
+      setLoadingTransactions(false);
+      return;
+    }
+
+    try {
+      setError("");
+
+      const response = await fetch(`${API_URL}/api/transactions`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch transactions.");
+      }
+
+      setTransactions(
+        Array.isArray(data.transactions) ? data.transactions : []
+      );
+    } catch (err) {
+      console.error("Transaction fetch error:", err);
+      setError(err.message || "Unable to load transactions.");
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  // --------------------------------------------------
+  // FORM HANDLING
+  // --------------------------------------------------
+
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+
+    setForm((previousForm) => ({
+      ...previousForm,
+      [name]: value,
+    }));
+  };
+
+  const handleTypeChange = (event) => {
+    const type = event.target.value;
+
+    setForm((previousForm) => ({
+      ...previousForm,
+      type,
+      category: type === "income" ? "Revenue" : "Operations",
+    }));
+  };
+
+  // --------------------------------------------------
+  // ADD TRANSACTION
+  // --------------------------------------------------
+
+  const handleAddTransaction = async (event) => {
+    event.preventDefault();
+
+    setTransactionMessage("");
+
+    if (!form.description.trim()) {
+      setTransactionMessage("Please enter a description.");
+      return;
+    }
+
+    if (!form.amount || Number(form.amount) <= 0) {
+      setTransactionMessage("Please enter a valid amount.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setTransactionMessage("Please login again.");
+      return;
+    }
+
+    try {
+      setSavingTransaction(true);
+
+      const response = await fetch(`${API_URL}/api/transactions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: form.type,
+          description: form.description.trim(),
+          category: form.category,
+          amount: Number(form.amount),
+          status: form.status,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to create transaction."
+        );
+      }
+
+      setTransactionMessage("Transaction added successfully.");
+
+      setForm({
+        type: "income",
+        description: "",
+        category: "Revenue",
+        amount: "",
+        status: "completed",
+      });
+
+      await fetchTransactions();
+
+      setTimeout(() => {
+        setShowAddTransaction(false);
+        setTransactionMessage("");
+      }, 800);
+    } catch (err) {
+      console.error("Add transaction error:", err);
+      setTransactionMessage(
+        err.message || "Unable to add transaction."
+      );
+    } finally {
+      setSavingTransaction(false);
+    }
+  };
+
+  // --------------------------------------------------
+  // FORMATTING
+  // --------------------------------------------------
+
+  const formatCurrency = (amount) => {
+    return Number(amount || 0).toLocaleString("en-IN", {
+      maximumFractionDigits: 0,
+    });
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    const transactionDate = new Date(date);
+    const today = new Date();
+
+    if (transactionDate.toDateString() === today.toDateString()) {
+      return "Today";
+    }
+
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (transactionDate.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    }
+
+    return transactionDate.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+    });
+  };
+
+  // --------------------------------------------------
+  // FINANCIAL SUMMARY
+  // --------------------------------------------------
+
+  const financialSummary = useMemo(() => {
+    const income = transactions
+      .filter((transaction) => transaction.type === "income")
+      .reduce(
+        (total, transaction) =>
+          total + Number(transaction.amount || 0),
+        0
+      );
+
+    const expenses = transactions
+      .filter((transaction) => transaction.type === "expense")
+      .reduce(
+        (total, transaction) =>
+          total + Number(transaction.amount || 0),
+        0
+      );
+
+    const balance = income - expenses;
+
+    const savingsRate =
+      income > 0 ? (balance / income) * 100 : 0;
+
+    return {
+      income,
+      expenses,
+      balance,
+      savingsRate,
+    };
+  }, [transactions]);
+
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
+
+  return (
+    <div className="dashboard-page">
+
+      {/* SIDEBAR */}
+
+      <aside
+        className={`dashboard-sidebar ${
+          sidebarOpen ? "open" : ""
+        }`}
+      >
+        <div className="sidebar-top">
+          <Link to="/" className="dashboard-logo">
+            FinSight<span>AI</span>
+          </Link>
+
+          <button
+            className="close-sidebar"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav className="sidebar-nav">
+          <p className="nav-title">MAIN</p>
+
+          <a
+            href="#overview"
+            className="nav-item active"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <LayoutDashboard size={18} />
+            Overview
+          </a>
+
+          <a
+            href="#transactions"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <Receipt size={18} />
+            Transactions
+          </a>
+
+          <a
+            href="#analytics"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <BarChart3 size={18} />
+            Analytics
+          </a>
+
+          <a
+            href="#reconciliation"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <CreditCard size={18} />
+            Reconciliation
+          </a>
+
+          <p className="nav-title second-title">
+            INTELLIGENCE
+          </p>
+
+          <a
+            href="#ai-insights"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <BrainCircuit size={18} />
+            AI Insights
+          </a>
+
+          <p className="nav-title second-title">
+            ACCOUNT
+          </p>
+
+          <a
+            href="#settings"
+            className="nav-item"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <Settings size={18} />
+            Settings
+          </a>
+        </nav>
+
+        <div className="sidebar-bottom">
+          <div className="user-card">
+            <div className="user-avatar">
+              {userInitial}
+            </div>
+
+            <div>
+              <strong>{userName}</strong>
+              <span>Finance Admin</span>
+            </div>
+          </div>
+
+          <Link to="/" className="logout-button">
+            <LogOut size={17} />
+            Logout
+          </Link>
+        </div>
+      </aside>
+
+      {/* MOBILE OVERLAY */}
+
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* MAIN */}
+
+      <main className="dashboard-main">
+
+        {/* HEADER */}
+
+        <header className="dashboard-header">
+          <button
+            className="menu-button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open sidebar"
+          >
+            <Menu size={22} />
+          </button>
+
+          <div className="header-title">
+            <h1>Financial Overview</h1>
+            <p>
+              Monitor your financial health at a glance.
+            </p>
+          </div>
+
+          <button
+            className="notification-button"
+            aria-label="Notifications"
+          >
+            <Bell size={19} />
+            <span />
+          </button>
+        </header>
+
+        <section
+          className="dashboard-content"
+          id="overview"
+        >
+
+          {/* WELCOME */}
+
+          <div className="welcome-section">
+            <div>
+              <p className="welcome-label">
+                GOOD MORNING
+              </p>
+
+              <h2>
+                Welcome back, {userName} 👋
+              </h2>
+
+              <p>
+                Here's what's happening with your finances
+                today.
+              </p>
+            </div>
+
+            <button className="date-button">
+              August 2026
+            </button>
+          </div>
+
+          {/* ADD TRANSACTION BUTTON */}
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: "20px",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() =>
+                setShowAddTransaction(!showAddTransaction)
+              }
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "11px 18px",
+                border: "none",
+                borderRadius: "10px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "14px",
+              }}
+            >
+              <Plus size={18} />
+
+              {showAddTransaction
+                ? "Close"
+                : "Add Transaction"}
+            </button>
+          </div>
+
+          {/* ADD TRANSACTION FORM */}
+
+          {showAddTransaction && (
+     try {
+  const response = await fetch(API_URL + "/api/transactions", {
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch transactions.");
+  }
+
+  setTransactions(
+    Array.isArray(data.transactions) ? data.transactions : []
+  );
+} catch (err) {
+  console.error("Transaction fetch error:", err);
+  setError(err.message || "Unable to load transactions.");
+} finally {
+  setLoadingTransactions(false);
+}
+            <div
+              className="dashboard-card ai-card"
+              id="ai-insights"
+            >
+              <div className="ai-heading">
+
+                <div className="ai-icon">
+                  <BrainCircuit size={21} />
+                </div>
+
+                <div>
+                  <h3>AI Financial Insight</h3>
+                  <p>FinSight Intelligence</p>
+                </div>
+
+              </div>
+
+              <div className="ai-message">
+
+                <h4>
+                  {financialSummary.expenses <=
+                  financialSummary.income
+                    ? "Your cash flow looks healthy."
+                    : "Your expenses need attention."}
+                </h4>
+
+                <p>
+                  {transactions.length === 0
+                    ? "Add transactions to receive personalized financial insights."
+                    : `FinSight analyzed ${
+                        transactions.length
+                      } transaction${
+                        transactions.length === 1
+                          ? ""
+                          : "s"
+                      } from your account.`}
+                </p>
+
+                <div className="ai-recommendation">
+                  <strong>Recommendation</strong>
+
+                  <p>
+                    {financialSummary.income >
+                    financialSummary.expenses
+                      ? "Consider allocating a portion of your surplus toward investments or an emergency reserve."
+                      : "Review your expenses and identify areas where spending can be reduced."}
+                  </p>
+                </div>
+
+              </div>
+
+              <button className="ai-button">
+                View Full AI Analysis
+              </button>
+            </div>
+
+          </div>
+
+          {/* TRANSACTIONS */}
+
+          <div
+            className="dashboard-card transactions-card"
+            id="transactions"
+          >
+            <div className="card-header">
+
+              <div>
+                <h3>Recent Transactions</h3>
+                <p>
+                  Your latest financial activity
+                </p>
+              </div>
+
+              <a href="#transactions">
+                View all
+              </a>
+
+            </div>
+
+            <div className="transaction-list">
+
+              {loadingTransactions ? (
+                <div className="transaction">
+                  <div className="transaction-info">
+                    <strong>
+                      Loading transactions...
+                    </strong>
+
+                    <span>
+                      Fetching your financial activity
+                    </span>
+                  </div>
+                </div>
+
+              ) : error ? (
+                <div className="transaction">
+                  <div className="transaction-info">
+                    <strong>
+                      Unable to load transactions
+                    </strong>
+
+                    <span>{error}</span>
+                  </div>
+                </div>
+
+              ) : transactions.length === 0 ? (
+                <div className="transaction">
+                  <div className="transaction-info">
+                    <strong>
+                      No transactions yet
+                    </strong>
+
+                    <span>
+                      Your financial activity will
+                      appear here.
+                    </span>
+                  </div>
+                </div>
+
+              ) : (
+                transactions
+                  .slice(0, 5)
+                  .map((transaction) => {
+
+                    const isIncome =
+                      transaction.type === "income";
+
+                    return (
+                      <div
+                        className="transaction"
+                        key={transaction.id}
+                      >
+
+                        <div
+                          className={`transaction-icon ${
+                            isIncome
+                              ? "income-transaction"
+                              : "expense-transaction"
+                          }`}
+                        >
+                          {isIncome ? (
+                            <ArrowDownRight size={17} />
+                          ) : (
+                            <ArrowUpRight size={17} />
+                          )}
+                        </div>
+
+                        <div className="transaction-info">
+
+                          <strong>
+                            {transaction.description}
+                          </strong>
+
+                          <span>
+                            {formatDate(
+                              transaction.transaction_date
+                            )}{" "}
+                            • {transaction.category}
+                          </span>
+
+                        </div>
+
+                        <div
+                          className={`transaction-amount ${
+                            isIncome
+                              ? "income-amount"
+                              : "expense-amount"
+                          }`}
+                        >
+                          {isIncome ? "+" : "-"}₹
+                          {formatCurrency(
+                            transaction.amount
+                          )}
+                        </div>
+
+                        <span
+                          className={`status ${
+                            transaction.status ===
+                            "completed"
+                              ? "completed"
+                              : "pending"
+                          }`}
+                        >
+                          {transaction.status
+                            ? transaction.status
+                                .charAt(0)
+                                .toUpperCase() +
+                              transaction.status.slice(1)
+                            : "Pending"}
+                        </span>
+
+                      </div>
+                    );
+                  })
+              )}
+
+            </div>
+          </div>
+
+        </section>
+
+      </main>
+
+      {/* RECONCILIATION PLACEHOLDER */}
+
+      <div id="reconciliation" />
+
+      {/* SETTINGS PLACEHOLDER */}
+
+      <div id="settings" />
+
+    </div>
+  );
+}
+
+export default Dashboard;
+```

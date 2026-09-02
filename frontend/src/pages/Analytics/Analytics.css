@@ -1,0 +1,399 @@
+.analytics-page {
+  min-height: 100vh;
+  padding: 32px;
+  background: #f7f8fc;
+  color: #171923;
+}
+
+/* HEADER */
+
+.analytics-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.analytics-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #737784;
+}
+
+.analytics-header h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.analytics-header > div:first-child > p:last-child {
+  margin: 8px 0 0;
+  color: #737784;
+  font-size: 14px;
+}
+
+.analytics-period {
+  padding: 11px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* SUMMARY CARDS */
+
+.analytics-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.analytics-stat-card {
+  padding: 20px;
+  border: 1px solid #e7e8ee;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(20, 24, 40, 0.04);
+}
+
+.analytics-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.analytics-stat-top > span {
+  font-size: 13px;
+  color: #737784;
+}
+
+.analytics-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #eef6f1;
+}
+
+.analytics-icon.expense {
+  background: #fff0f0;
+}
+
+.analytics-stat-card h2 {
+  margin: 18px 0 8px;
+  font-size: 25px;
+  line-height: 1.2;
+}
+
+.analytics-positive,
+.analytics-negative {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.analytics-positive {
+  color: #238653;
+}
+
+.analytics-negative {
+  color: #d24b4b;
+}
+
+/* MAIN GRID */
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.analytics-card {
+  border: 1px solid #e7e8ee;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(20, 24, 40, 0.04);
+}
+
+.cash-flow-card {
+  min-height: 390px;
+  padding: 22px;
+}
+
+.category-card {
+  padding: 22px;
+}
+
+.analytics-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.analytics-card-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.analytics-card-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #858894;
+}
+
+/* LEGEND */
+
+.cash-flow-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #737784;
+}
+
+.cash-flow-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.income-dot,
+.expense-dot {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.income-dot {
+  background: #3b82f6;
+}
+
+.expense-dot {
+  background: #f59e0b;
+}
+
+/* CASH FLOW CHART */
+
+.cash-flow-chart {
+  height: 260px;
+  margin-top: 34px;
+  padding: 0 12px 8px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 14px;
+  border-bottom: 1px solid #e9eaf0;
+}
+
+.cash-flow-month {
+  height: 100%;
+  flex: 1;
+  min-width: 45px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.cash-flow-bars {
+  width: 100%;
+  height: calc(100% - 25px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+}
+
+.cash-bar {
+  width: 22px;
+  min-height: 4px;
+  border-radius: 5px 5px 0 0;
+  transition: height 0.3s ease;
+}
+
+.income-bar {
+  background: #3b82f6;
+}
+
+.expense-bar {
+  background: #f59e0b;
+}
+
+.cash-flow-month > span {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #777b86;
+}
+
+/* CATEGORY LIST */
+
+.category-list {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.category-item {
+  position: relative;
+}
+
+.category-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.category-info strong {
+  font-size: 13px;
+}
+
+.category-info span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.category-progress {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #eef0f4;
+}
+
+.category-progress > div {
+  height: 100%;
+  border-radius: inherit;
+  background: #3b82f6;
+}
+
+.category-item small {
+  display: block;
+  margin-top: 5px;
+  color: #888b95;
+  font-size: 11px;
+}
+
+/* FINANCIAL SUMMARY */
+
+.financial-summary-card {
+  padding: 22px;
+}
+
+.summary-details {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 25px;
+}
+
+.summary-details > div {
+  padding: 17px;
+  border: 1px solid #ececf1;
+  border-radius: 10px;
+  background: #fafbfc;
+}
+
+.summary-details span {
+  display: block;
+  margin-bottom: 7px;
+  color: #777b86;
+  font-size: 12px;
+}
+
+.summary-details strong {
+  font-size: 18px;
+}
+
+/* LOADING / ERROR / EMPTY */
+
+.analytics-loading,
+.analytics-error,
+.analytics-empty {
+  padding: 50px 20px;
+  text-align: center;
+  color: #777b86;
+}
+
+.analytics-error {
+  color: #c44545;
+}
+
+/* TABLET */
+
+@media (max-width: 1100px) {
+  .analytics-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .analytics-page {
+    padding: 20px 16px;
+  }
+
+  .analytics-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .analytics-header h1 {
+    font-size: 27px;
+  }
+
+  .analytics-period {
+    width: fit-content;
+  }
+
+  .analytics-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-card-header {
+    flex-direction: column;
+  }
+
+  .cash-flow-legend {
+    margin-top: 5px;
+  }
+
+  .cash-flow-chart {
+    gap: 6px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .cash-bar {
+    width: 15px;
+  }
+
+  .summary-details {
+    grid-template-columns: 1fr;
+  }
+}
