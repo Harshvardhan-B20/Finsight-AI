@@ -401,6 +401,77 @@
 
   cursor: pointer;
 }
+/* =========================================
+   HEADER + BACK BUTTON
+   ========================================= */
+
+.settings-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.settings-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.settings-back-button {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  margin-top: 2px;
+
+  border: 1px solid #e1e4eb;
+  border-radius: 11px;
+
+  background: #ffffff;
+  color: #303746;
+
+  cursor: pointer;
+
+  box-shadow: 0 3px 10px rgba(20, 24, 40, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.settings-back-button:hover {
+  background: #f8f9fc;
+  transform: translateX(-2px);
+  box-shadow: 0 6px 16px rgba(20, 24, 40, 0.09);
+}
+
+.settings-back-button:active {
+  transform: translateX(-1px);
+}
+
+/* REMOVE OLD BOTTOM BACK BUTTON */
+
+.back-dashboard {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .settings-header-left {
+    gap: 12px;
+  }
+
+  .settings-back-button {
+    width: 40px;
+    height: 40px;
+  }
+}
 
 .settings-save-button:hover {
   background: #2a2e38

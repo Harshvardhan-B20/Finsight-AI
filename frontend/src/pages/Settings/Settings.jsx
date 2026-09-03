@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   LogOut,
   Settings as SettingsIcon,
   User,
@@ -14,17 +15,9 @@ import "./Settings.css";
 function Settings() {
   const navigate = useNavigate();
 
-  // ========================================
-  // GET USER FROM LOCAL STORAGE
-  // ========================================
-
   const storedUser = JSON.parse(
     localStorage.getItem("user") || "{}"
   );
-
-  // ========================================
-  // USER STATE
-  // ========================================
 
   const [userName, setUserName] = useState(
     storedUser.name || "User"
@@ -37,10 +30,6 @@ function Settings() {
   const [accountType, setAccountType] = useState(
     storedUser.account_type || "Finance Admin"
   );
-
-  // ========================================
-  // MODAL STATE
-  // ========================================
 
   const [showProfile, setShowProfile] = useState(false);
 
@@ -57,9 +46,7 @@ function Settings() {
   );
 
   const [savingProfile, setSavingProfile] = useState(false);
-
   const [profileError, setProfileError] = useState("");
-
   const [profileSuccess, setProfileSuccess] = useState("");
 
   // ========================================
@@ -69,12 +56,11 @@ function Settings() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
     navigate("/");
   };
 
   // ========================================
-  // OPEN PROFILE MODAL
+  // PROFILE MODAL
   // ========================================
 
   const openProfileModal = () => {
@@ -84,18 +70,11 @@ function Settings() {
 
     setProfileError("");
     setProfileSuccess("");
-
     setShowProfile(true);
   };
 
-  // ========================================
-  // CLOSE PROFILE MODAL
-  // ========================================
-
   const closeProfileModal = () => {
-    if (savingProfile) {
-      return;
-    }
+    if (savingProfile) return;
 
     setShowProfile(false);
     setProfileError("");
@@ -110,10 +89,6 @@ function Settings() {
     const trimmedName = editName.trim();
     const trimmedEmail = editEmail.trim().toLowerCase();
     const trimmedAccountType = editAccountType.trim();
-
-    // ----------------------------------------
-    // VALIDATION
-    // ----------------------------------------
 
     if (!trimmedName) {
       setProfileError("Name is required.");
@@ -144,10 +119,6 @@ function Settings() {
       return;
     }
 
-    // ----------------------------------------
-    // START SAVING
-    // ----------------------------------------
-
     setSavingProfile(true);
     setProfileError("");
     setProfileSuccess("");
@@ -157,12 +128,10 @@ function Settings() {
         "http://127.0.0.1:5100/api/auth/profile",
         {
           method: "PUT",
-
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-
           body: JSON.stringify({
             name: trimmedName,
             email: trimmedEmail,
@@ -170,10 +139,6 @@ function Settings() {
           }),
         }
       );
-
-      // ----------------------------------------
-      // HANDLE JSON RESPONSE
-      // ----------------------------------------
 
       const data = await response.json();
 
@@ -183,13 +148,8 @@ function Settings() {
         );
       }
 
-      // ----------------------------------------
-      // GET UPDATED USER
-      // ----------------------------------------
-
       const updatedUser = {
         ...storedUser,
-
         id: data.user.id,
         name: data.user.name,
         email: data.user.email,
@@ -197,82 +157,45 @@ function Settings() {
         created_at: data.user.created_at,
       };
 
-      // ----------------------------------------
-      // SAVE NEW USER TO LOCAL STORAGE
-      // ----------------------------------------
-
       localStorage.setItem(
         "user",
         JSON.stringify(updatedUser)
       );
 
-      // ----------------------------------------
-      // SAVE NEW TOKEN
-      // ----------------------------------------
-
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
 
-      // ----------------------------------------
-      // UPDATE UI
-      // ----------------------------------------
-
       setUserName(data.user.name);
-
       setUserEmail(data.user.email);
-
       setAccountType(
         data.user.account_type || "Finance Admin"
       );
 
       setEditName(data.user.name);
-
       setEditEmail(data.user.email);
-
       setEditAccountType(
         data.user.account_type || "Finance Admin"
       );
 
-      // ----------------------------------------
-      // SUCCESS MESSAGE
-      // ----------------------------------------
-
       setProfileSuccess(
         "Profile updated successfully."
       );
-
-      console.log(
-        "Profile updated successfully:",
-        data.user
-      );
-
-      // ----------------------------------------
-      // CLOSE MODAL AFTER SHORT DELAY
-      // ----------------------------------------
 
       setTimeout(() => {
         setShowProfile(false);
         setProfileSuccess("");
       }, 700);
     } catch (error) {
-      console.error(
-        "Profile update error:",
-        error
-      );
+      console.error("Profile update error:", error);
 
       setProfileError(
-        error.message ||
-          "Unable to update profile."
+        error.message || "Unable to update profile."
       );
     } finally {
       setSavingProfile(false);
     }
   };
-
-  // ========================================
-  // RETURN
-  // ========================================
 
   return (
     <div className="settings-page">
@@ -282,17 +205,32 @@ function Settings() {
           ======================================== */}
 
       <header className="settings-header">
-        <div>
-          <p className="settings-label">
-            ACCOUNT MANAGEMENT
-          </p>
 
-          <h1>Settings</h1>
+        <div className="settings-header-left">
 
-          <p>
-            Manage your account and application preferences.
-          </p>
+          <button
+            type="button"
+            className="settings-back-button"
+            onClick={() => navigate("/dashboard")}
+            aria-label="Back to dashboard"
+          >
+            <ArrowLeft size={20} />
+          </button>
+
+          <div>
+            <p className="settings-label">
+              ACCOUNT MANAGEMENT
+            </p>
+
+            <h1>Settings</h1>
+
+            <p>
+              Manage your account and application preferences.
+            </p>
+          </div>
+
         </div>
+
       </header>
 
       {/* ========================================
@@ -300,8 +238,6 @@ function Settings() {
           ======================================== */}
 
       <div className="settings-card">
-
-        {/* SECTION TITLE */}
 
         <div className="settings-section-title">
           <SettingsIcon size={20} />
@@ -315,15 +251,14 @@ function Settings() {
           </div>
         </div>
 
-        {/* ========================================
-            PROFILE
-            ======================================== */}
+        {/* PROFILE */}
 
         <div
           className="settings-row settings-clickable"
           onClick={openProfileModal}
         >
           <div className="settings-info">
+
             <div className="settings-icon">
               <User size={18} />
             </div>
@@ -335,21 +270,21 @@ function Settings() {
                 Manage your FinSight account information.
               </span>
             </div>
+
           </div>
 
           <div className="settings-value">
             <strong>{userName}</strong>
-
             <span>{accountType}</span>
           </div>
         </div>
 
-        {/* ========================================
-            EMAIL
-            ======================================== */}
+        {/* EMAIL */}
 
         <div className="settings-row">
+
           <div className="settings-info">
+
             <div className="settings-icon">
               <Mail size={18} />
             </div>
@@ -361,19 +296,21 @@ function Settings() {
                 Your registered account email.
               </span>
             </div>
+
           </div>
 
           <div className="settings-value">
             {userEmail || "Not available"}
           </div>
+
         </div>
 
-        {/* ========================================
-            CURRENCY
-            ======================================== */}
+        {/* CURRENCY */}
 
         <div className="settings-row">
+
           <div className="settings-info">
+
             <div className="settings-icon">
               <Wallet size={18} />
             </div>
@@ -385,19 +322,21 @@ function Settings() {
                 Currency used throughout FinSight.
               </span>
             </div>
+
           </div>
 
           <div className="settings-value">
             INR (₹)
           </div>
+
         </div>
 
-        {/* ========================================
-            ACCOUNT TYPE
-            ======================================== */}
+        {/* ACCOUNT TYPE */}
 
         <div className="settings-row">
+
           <div className="settings-info">
+
             <div className="settings-icon">
               <User size={18} />
             </div>
@@ -409,19 +348,21 @@ function Settings() {
                 Your current FinSight access level.
               </span>
             </div>
+
           </div>
 
           <div className="settings-value">
             {accountType}
           </div>
+
         </div>
 
-        {/* ========================================
-            SESSION
-            ======================================== */}
+        {/* SESSION */}
 
         <div className="settings-row">
+
           <div className="settings-info">
+
             <div className="settings-icon">
               <LogOut size={18} />
             </div>
@@ -433,6 +374,7 @@ function Settings() {
                 Sign out of your current FinSight account.
               </span>
             </div>
+
           </div>
 
           <button
@@ -442,19 +384,10 @@ function Settings() {
             <LogOut size={16} />
             Logout
           </button>
+
         </div>
+
       </div>
-
-      {/* ========================================
-          BACK TO DASHBOARD
-          ======================================== */}
-
-      <button
-        className="back-dashboard"
-        onClick={() => navigate("/dashboard")}
-      >
-        ← Back to Dashboard
-      </button>
 
       {/* ========================================
           PROFILE MODAL
@@ -472,9 +405,8 @@ function Settings() {
             }
           >
 
-            {/* MODAL HEADER */}
-
             <div className="settings-modal-header">
+
               <div>
                 <h2>Edit Profile</h2>
 
@@ -491,13 +423,10 @@ function Settings() {
               >
                 <X size={19} />
               </button>
+
             </div>
 
-            {/* FORM */}
-
             <div className="settings-form">
-
-              {/* NAME */}
 
               <label>
                 Name
@@ -514,8 +443,6 @@ function Settings() {
                 />
               </label>
 
-              {/* EMAIL */}
-
               <label>
                 Email
 
@@ -529,8 +456,6 @@ function Settings() {
                   disabled={savingProfile}
                 />
               </label>
-
-              {/* ACCOUNT TYPE */}
 
               <label>
                 Account Type
@@ -562,23 +487,17 @@ function Settings() {
                 </select>
               </label>
 
-              {/* ERROR */}
-
               {profileError && (
                 <div className="profile-error">
                   {profileError}
                 </div>
               )}
 
-              {/* SUCCESS */}
-
               {profileSuccess && (
                 <div className="profile-success">
                   {profileSuccess}
                 </div>
               )}
-
-              {/* SAVE */}
 
               <button
                 type="button"
@@ -602,6 +521,7 @@ function Settings() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

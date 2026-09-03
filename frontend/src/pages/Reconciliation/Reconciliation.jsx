@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import "./Reconciliation.css";
 
 const API_URL = "http://127.0.0.1:5100";
+
 function Reconciliation() {
   const [reconciliation, setReconciliation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,11 +62,6 @@ function Reconciliation() {
     });
   };
 
-  /*
-   * ==========================================
-   * MARK TRANSACTION AS COMPLETED
-   * ==========================================
-   */
   const handleMarkAsMatched = async (transactionId) => {
     const token = localStorage.getItem("token");
 
@@ -99,10 +97,6 @@ function Reconciliation() {
         );
       }
 
-      /*
-       * Refresh reconciliation data from PostgreSQL
-       * so summary + transaction status stay synchronized.
-       */
       await fetchReconciliation();
     } catch (err) {
       console.error(
@@ -156,39 +150,46 @@ function Reconciliation() {
 
   return (
     <div className="reconciliation-page">
-      {/* ==========================================
-          HEADER
-          ========================================== */}
 
+      {/* HEADER */}
       <header className="reconciliation-header">
-        <div>
-          <p className="reconciliation-label">
-            FINANCIAL CONTROL
-          </p>
 
-          <h1>Reconciliation</h1>
+        <div className="reconciliation-title-row">
 
-          <p>
-            Review and verify your financial transactions.
-          </p>
+          <Link
+            to="/dashboard"
+            className="reconciliation-back-button"
+            aria-label="Back to dashboard"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+
+          <div>
+            <p className="reconciliation-label">
+              FINANCIAL CONTROL
+            </p>
+
+            <h1>Reconciliation</h1>
+
+            <p>
+              Review and verify your financial transactions.
+            </p>
+          </div>
+
         </div>
+
       </header>
 
-      {/* ==========================================
-          ERROR
-          ========================================== */}
-
+      {/* ERROR */}
       {error && (
         <div className="reconciliation-error">
           {error}
         </div>
       )}
 
-      {/* ==========================================
-          SUMMARY
-          ========================================== */}
-
+      {/* SUMMARY */}
       <section className="reconciliation-stats">
+
         <div className="reconciliation-stat-card">
           <span>Total Transactions</span>
 
@@ -220,14 +221,14 @@ function Reconciliation() {
             ₹{formatCurrency(summary.totalAmount)}
           </h2>
         </div>
+
       </section>
 
-      {/* ==========================================
-          TRANSACTION TABLE
-          ========================================== */}
-
+      {/* TRANSACTION TABLE */}
       <section className="reconciliation-card">
+
         <div className="reconciliation-card-header">
+
           <div>
             <h2>
               Transaction Reconciliation
@@ -237,35 +238,37 @@ function Reconciliation() {
               Transactions retrieved from your database.
             </p>
           </div>
+
         </div>
 
         {transactions.length === 0 ? (
+
           <div className="reconciliation-empty">
             No transactions available.
           </div>
+
         ) : (
+
           <div className="reconciliation-table-wrapper">
+
             <table className="reconciliation-table">
+
               <thead>
                 <tr>
                   <th>Description</th>
-
                   <th>Category</th>
-
                   <th>Type</th>
-
                   <th>Amount</th>
-
                   <th>Date</th>
-
                   <th>Status</th>
-
                   <th>Action</th>
                 </tr>
               </thead>
 
               <tbody>
+
                 {transactions.map((transaction) => {
+
                   const isPending =
                     transaction.status === "pending";
 
@@ -274,6 +277,7 @@ function Reconciliation() {
 
                   return (
                     <tr key={transaction.id}>
+
                       <td>
                         {transaction.description}
                       </td>
@@ -296,9 +300,7 @@ function Reconciliation() {
                       <td>
                         {new Date(
                           transaction.transaction_date
-                        ).toLocaleDateString(
-                          "en-IN"
-                        )}
+                        ).toLocaleDateString("en-IN")}
                       </td>
 
                       <td>
@@ -315,7 +317,9 @@ function Reconciliation() {
                       </td>
 
                       <td>
+
                         {isPending ? (
+
                           <button
                             type="button"
                             className="reconciliation-match-button"
@@ -330,20 +334,30 @@ function Reconciliation() {
                               ? "Updating..."
                               : "Mark as Matched"}
                           </button>
+
                         ) : (
+
                           <span className="reconciliation-matched-text">
                             Matched
                           </span>
+
                         )}
+
                       </td>
+
                     </tr>
                   );
                 })}
+
               </tbody>
+
             </table>
+
           </div>
         )}
+
       </section>
+
     </div>
   );
 }

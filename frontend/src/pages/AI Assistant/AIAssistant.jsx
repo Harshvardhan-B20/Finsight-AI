@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   ArrowUp,
   BrainCircuit,
   Lightbulb,
@@ -7,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import "./AIAssistant.css";
 
@@ -68,14 +70,14 @@ const AIAssistant = () => {
           body: JSON.stringify({
             question: userQuestion,
           }),
-        },
+        }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to get AI response.",
+          data.message || "Failed to get AI response."
         );
       }
 
@@ -111,30 +113,49 @@ const AIAssistant = () => {
 
   return (
     <div className="ai-assistant-page">
+
+      {/* HEADER */}
       <div className="ai-assistant-header">
-        <div>
-          <span className="ai-page-label">
-            FINANCIAL INTELLIGENCE
-          </span>
 
-          <h1>FinSight AI Assistant</h1>
+        <div className="ai-header-left">
 
-          <p>
-            Ask questions about your business finances
-            and get intelligent answers from your
-            financial data.
-          </p>
+          <Link
+            to="/dashboard"
+            className="ai-back-button"
+            aria-label="Back to dashboard"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+
+          <div>
+            <span className="ai-page-label">
+              FINANCIAL INTELLIGENCE
+            </span>
+
+            <h1>FinSight AI Assistant</h1>
+
+            <p>
+              Ask questions about your business finances
+              and get intelligent answers from your
+              financial data.
+            </p>
+          </div>
+
         </div>
 
         <div className="ai-status">
           <span className="ai-status-dot"></span>
           AI Online
         </div>
+
       </div>
 
+      {/* CHAT */}
       <div className="ai-chat-container">
+
         {messages.length === 0 ? (
           <div className="ai-welcome">
+
             <div className="ai-welcome-icon">
               <BrainCircuit size={30} />
             </div>
@@ -164,9 +185,11 @@ const AIAssistant = () => {
                 </button>
               ))}
             </div>
+
           </div>
         ) : (
           <div className="ai-messages">
+
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -176,6 +199,7 @@ const AIAssistant = () => {
                     : "ai-message-bot"
                 }`}
               >
+
                 {message.role === "assistant" && (
                   <div className="ai-message-icon">
                     <Sparkles size={16} />
@@ -185,11 +209,13 @@ const AIAssistant = () => {
                 <div className="ai-message-content">
                   {message.content}
                 </div>
+
               </div>
             ))}
 
             {loading && (
               <div className="ai-message ai-message-bot">
+
                 <div className="ai-message-icon">
                   <Sparkles size={16} />
                 </div>
@@ -198,14 +224,20 @@ const AIAssistant = () => {
                   FinSight AI is analyzing your financial
                   data...
                 </div>
+
               </div>
             )}
+
           </div>
         )}
+
       </div>
 
+      {/* INPUT */}
       <div className="ai-input-area">
+
         <div className="ai-input-wrapper">
+
           <MessageCircle size={19} />
 
           <input
@@ -235,6 +267,7 @@ const AIAssistant = () => {
           >
             <ArrowUp size={19} />
           </button>
+
         </div>
 
         <p className="ai-disclaimer">
@@ -242,7 +275,9 @@ const AIAssistant = () => {
           data. AI responses should be reviewed before
           making important financial decisions.
         </p>
+
       </div>
+
     </div>
   );
 };

@@ -45,11 +45,9 @@ function Dashboard() {
   const userName = user.name || "User";
   const userInitial = userName.charAt(0).toUpperCase();
 
-  /*
-   * =========================================================
-   * FETCH TRANSACTIONS
-   * =========================================================
-   */
+  /* =========================================================
+     FETCH TRANSACTIONS
+     ========================================================= */
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -120,23 +118,15 @@ function Dashboard() {
     fetchTransactions();
   }, []);
 
-  /*
-   * =========================================================
-   * CURRENCY
-   * =========================================================
-   */
+  /* =========================================================
+     HELPERS
+     ========================================================= */
 
   const formatCurrency = (amount) => {
     return Number(amount || 0).toLocaleString("en-IN", {
       maximumFractionDigits: 0,
     });
   };
-
-  /*
-   * =========================================================
-   * DATE
-   * =========================================================
-   */
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -173,11 +163,9 @@ function Dashboard() {
     });
   };
 
-  /*
-   * =========================================================
-   * FINANCIAL SUMMARY
-   * =========================================================
-   */
+  /* =========================================================
+     FINANCIAL SUMMARY
+     ========================================================= */
 
   const financialSummary = useMemo(() => {
     let income = 0;
@@ -231,11 +219,9 @@ function Dashboard() {
     };
   }, [transactions]);
 
-  /*
-   * =========================================================
-   * EXPENSE BREAKDOWN
-   * =========================================================
-   */
+  /* =========================================================
+     EXPENSE BREAKDOWN
+     ========================================================= */
 
   const expenseBreakdown = useMemo(() => {
     const totals = {};
@@ -264,20 +250,82 @@ function Dashboard() {
   const topExpense =
     expenseBreakdown[0] || null;
 
-  /*
-   * =========================================================
-   * FINANCIAL HEALTH SCORE
-   * =========================================================
-   *
-   * 40 points - savings performance
-   * 25 points - cash flow
-   * 20 points - expense control
-   * 15 points - spending concentration
-   *
-   * Application-level indicator only.
-   * Not financial advice.
-   * =========================================================
-   */
+  /* =========================================================
+     MONTHLY CASH FLOW
+     ========================================================= */
+
+  const monthlyCashFlow = useMemo(() => {
+    const now = new Date();
+
+    return Array.from(
+      { length: chartMonths },
+      (_, index) => {
+        const date = new Date(
+          now.getFullYear(),
+          now.getMonth() -
+            (chartMonths - 1 - index),
+          1
+        );
+
+        const year = date.getFullYear();
+        const month = date.getMonth();
+
+        let income = 0;
+        let expenses = 0;
+
+        transactions.forEach((transaction) => {
+          const rawDate =
+            transaction.transaction_date ||
+            transaction.created_at;
+
+          if (!rawDate) return;
+
+          const transactionDate =
+            new Date(rawDate);
+
+          if (
+            transactionDate.getFullYear() !== year ||
+            transactionDate.getMonth() !== month
+          ) {
+            return;
+          }
+
+          const amount = Number(
+            transaction.amount || 0
+          );
+
+          if (transaction.type === "income") {
+            income += amount;
+          }
+
+          if (transaction.type === "expense") {
+            expenses += amount;
+          }
+        });
+
+        return {
+          month: date.toLocaleDateString("en-IN", {
+            month: "short",
+          }),
+          income,
+          expenses,
+        };
+      }
+    );
+  }, [transactions, chartMonths]);
+
+  /* =========================================================
+     FINANCIAL HEALTH SCORE
+     =========================================================
+     
+     Savings Rate       = 35 points
+     Expense Control    = 30 points
+     Cash Flow Stability= 20 points
+     Transaction Activity=15 points
+
+     Application-level indicator only.
+     Not financial advice.
+     ========================================================= */
 
   const financialHealth = useMemo(() => {
     const {
@@ -288,141 +336,273 @@ function Dashboard() {
       expenseRatio,
     } = financialSummary;
 
+    const totalTransactions =
+      transactions.length;
+
     if (income <= 0) {
       return {
-        score: transactions.length > 0 ? 30 : 0,
-        label: transactions.length > 0
-          ? "Needs Data"
-          : "No Data",
-        status: "Review",
+        score: totalTransactions > 0 ? 30 : 0,
+        grade: totalTransactions > 0 ? "D" : "—",
+        label:
+          totalTransactions > 0
+            ? "Needs Data"
+            : "No Data",
+        status:
+          totalTransactions > 0
+            ? "Review"
+            : "Waiting",
         description:
           "Add income transactions to calculate a complete financial health score.",
+        components: [
+          {
+            label: "Savings Rate",
+            score: 0,
+            max: 35,
+            description:
+              "Retained income after expenses.",
+          },
+          {
+            label: "Expense Control",
+            score: 0,
+            max: 30,
+            description:
+              "Spending relative to income.",
+          },
+          {
+            label: "Cash Flow Stability",
+            score: balance > 0 ? 20 : 0,
+            max: 20,
+            description:
+              "Positive net financial position.",
+          },
+          {
+            label: "Transaction Activity",
+            score: Math.min(
+              totalTransactions * 3,
+              15
+            ),
+            max: 15,
+            description:
+              "Recent recorded financial activity.",
+          },
+        ],
       };
     }
 
-    let score = 0;
+    /* Savings Rate — 35 */
 
-    /*
-     * Savings performance
-     * Maximum 40 points.
-     */
-
-    score += Math.min(
-      Math.max(savingsRate, 0),
-      40
+    const savingsScore = Math.round(
+      (Math.min(
+        Math.max(savingsRate, 0),
+        50
+      ) /
+        50) *
+        35
     );
 
-    /*
-     * Cash flow
-     * Maximum 25 points.
-     */
+    /* Expense Control — 30 */
 
-    if (balance > 0) {
-      score += 25;
-    } else if (balance === 0) {
-      score += 12;
-    }
-
-    /*
-     * Expense control
-     * Maximum 20 points.
-     */
+    let expenseScore = 0;
 
     if (expenseRatio <= 30) {
-      score += 20;
+      expenseScore = 30;
+    } else if (expenseRatio <= 40) {
+      expenseScore = 26;
     } else if (expenseRatio <= 50) {
-      score += 15;
-    } else if (expenseRatio <= 70) {
-      score += 10;
+      expenseScore = 22;
+    } else if (expenseRatio <= 60) {
+      expenseScore = 17;
+    } else if (expenseRatio <= 75) {
+      expenseScore = 11;
     } else if (expenseRatio <= 90) {
-      score += 5;
+      expenseScore = 6;
     }
 
-    /*
-     * Spending concentration
-     * Maximum 15 points.
-     */
+    /* Cash Flow Stability — 20 */
 
-    const topCategoryAmount =
-      expenseBreakdown[0]?.amount || 0;
+    const monthlyResults = {};
 
-    const concentration =
-      expenses > 0
-        ? (topCategoryAmount / expenses) * 100
-        : 0;
+    transactions.forEach((transaction) => {
+      const date = new Date(
+        transaction.transaction_date ||
+          transaction.created_at
+      );
 
-    if (concentration <= 25) {
-      score += 15;
-    } else if (concentration <= 40) {
-      score += 12;
-    } else if (concentration <= 55) {
-      score += 9;
-    } else if (concentration <= 70) {
-      score += 5;
-    }
+      if (Number.isNaN(date.getTime())) {
+        return;
+      }
 
-    const scoreValue = Math.round(
-      Math.min(Math.max(score, 0), 100)
+      const key = `${date.getFullYear()}-${date.getMonth()}`;
+
+      if (!monthlyResults[key]) {
+        monthlyResults[key] = {
+          income: 0,
+          expenses: 0,
+        };
+      }
+
+      const amount = Number(
+        transaction.amount || 0
+      );
+
+      if (transaction.type === "income") {
+        monthlyResults[key].income += amount;
+      }
+
+      if (transaction.type === "expense") {
+        monthlyResults[key].expenses += amount;
+      }
+    });
+
+    const activeMonths = Object.values(
+      monthlyResults
+    ).filter(
+      (month) =>
+        month.income > 0 ||
+        month.expenses > 0
     );
 
-    if (scoreValue >= 85) {
-      return {
-        score: scoreValue,
-        label: "Excellent",
-        status: "Strong",
-        description:
-          "Strong savings, positive cash flow, and controlled spending.",
-      };
-    }
+    const positiveMonths =
+      activeMonths.filter(
+        (month) =>
+          month.income >= month.expenses
+      ).length;
 
-    if (scoreValue >= 70) {
-      return {
-        score: scoreValue,
-        label: "Healthy",
-        status: "Stable",
-        description:
-          "Your financial position is positive with room to improve.",
-      };
-    }
+    const stabilityScore =
+      activeMonths.length > 0
+        ? Math.round(
+            (positiveMonths /
+              activeMonths.length) *
+              20
+          )
+        : balance > 0
+          ? 20
+          : 0;
 
-    if (scoreValue >= 55) {
-      return {
-        score: scoreValue,
-        label: "Moderate",
-        status: "Monitor",
-        description:
-          "Your finances are stable, but spending should be monitored.",
-      };
-    }
+    /* Transaction Activity — 15 */
 
-    if (scoreValue >= 35) {
-      return {
-        score: scoreValue,
-        label: "Needs Attention",
-        status: "Review",
-        description:
-          "Your current spending is putting pressure on cash flow.",
-      };
+    const now = Date.now();
+
+    const recentCount =
+      transactions.filter((transaction) => {
+        const date = new Date(
+          transaction.transaction_date ||
+            transaction.created_at
+        ).getTime();
+
+        return (
+          Number.isFinite(date) &&
+          now - date <=
+            30 * 24 * 60 * 60 * 1000
+        );
+      }).length;
+
+    const activityScore = Math.min(
+      recentCount * 3,
+      15
+    );
+
+    /* Final score */
+
+    const scoreValue = Math.min(
+      100,
+      Math.round(
+        savingsScore +
+          expenseScore +
+          stabilityScore +
+          activityScore
+      )
+    );
+
+    /* Grade */
+
+    let grade = "F";
+
+    if (scoreValue >= 97) grade = "A+";
+    else if (scoreValue >= 93) grade = "A";
+    else if (scoreValue >= 90) grade = "A-";
+    else if (scoreValue >= 87) grade = "B+";
+    else if (scoreValue >= 83) grade = "B";
+    else if (scoreValue >= 80) grade = "B-";
+    else if (scoreValue >= 77) grade = "C+";
+    else if (scoreValue >= 73) grade = "C";
+    else if (scoreValue >= 70) grade = "C-";
+    else if (scoreValue >= 67) grade = "D+";
+    else if (scoreValue >= 63) grade = "D";
+    else if (scoreValue >= 60) grade = "D-";
+
+    /* Label */
+
+    let label = "Needs Attention";
+    let status = "Action Needed";
+    let description =
+      "Your current financial activity has areas that could be improved.";
+
+    if (scoreValue >= 90) {
+      label = "Excellent";
+      status = "Strong";
+      description =
+        "Strong savings, controlled spending, and positive financial activity.";
+    } else if (scoreValue >= 80) {
+      label = "Healthy";
+      status = "Stable";
+      description =
+        "Your finances are in a healthy position with room for optimization.";
+    } else if (scoreValue >= 70) {
+      label = "Good";
+      status = "Monitor";
+      description =
+        "Your financial position is positive, but some areas deserve attention.";
+    } else if (scoreValue >= 60) {
+      label = "Moderate";
+      status = "Review";
+      description =
+        "Your finances are stable, but spending and cash flow should be monitored.";
     }
 
     return {
       score: scoreValue,
-      label: "At Risk",
-      status: "Critical",
-      description:
-        "Expenses are putting significant pressure on your financial position.",
-    };
-  }, [
-    financialSummary,
-    expenseBreakdown,
-    transactions.length,
-  ]);
+      grade,
+      label,
+      status,
+      description,
 
-  /*
-   * =========================================================
-   * HEALTH METRICS
-   * =========================================================
-   */
+      components: [
+        {
+          label: "Savings Rate",
+          score: savingsScore,
+          max: 35,
+          description:
+            "Retained income after expenses.",
+        },
+        {
+          label: "Expense Control",
+          score: expenseScore,
+          max: 30,
+          description:
+            "Spending relative to income.",
+        },
+        {
+          label: "Cash Flow Stability",
+          score: stabilityScore,
+          max: 20,
+          description:
+            "Consistency of positive monthly cash flow.",
+        },
+        {
+          label: "Transaction Activity",
+          score: activityScore,
+          max: 15,
+          description:
+            "Recent recorded financial activity.",
+        },
+      ],
+    };
+  }, [financialSummary, transactions]);
+
+  /* =========================================================
+     HEALTH METRICS
+     ========================================================= */
 
   const healthMetrics = useMemo(() => {
     const expenseRatio =
@@ -461,11 +641,9 @@ function Dashboard() {
     };
   }, [financialSummary]);
 
-  /*
-   * =========================================================
-   * RECENT TRANSACTIONS
-   * =========================================================
-   */
+  /* =========================================================
+     RECENT TRANSACTIONS
+     ========================================================= */
 
   const recentTransactions = useMemo(() => {
     return [...transactions]
@@ -485,76 +663,9 @@ function Dashboard() {
       .slice(0, 5);
   }, [transactions]);
 
-  /*
-   * =========================================================
-   * MONTHLY CASH FLOW
-   * =========================================================
-   */
-
-  const monthlyCashFlow = useMemo(() => {
-    const now = new Date();
-
-    return Array.from(
-      { length: chartMonths },
-      (_, index) => {
-        const date = new Date(
-          now.getFullYear(),
-          now.getMonth() -
-            (chartMonths - 1 - index),
-          1
-        );
-
-        const year = date.getFullYear();
-        const month = date.getMonth();
-
-        let income = 0;
-        let expenses = 0;
-
-        transactions.forEach((transaction) => {
-          if (!transaction.transaction_date) {
-            return;
-          }
-
-          const transactionDate = new Date(
-            transaction.transaction_date
-          );
-
-          if (
-            transactionDate.getFullYear() !== year ||
-            transactionDate.getMonth() !== month
-          ) {
-            return;
-          }
-
-          const amount = Number(
-            transaction.amount || 0
-          );
-
-          if (transaction.type === "income") {
-            income += amount;
-          }
-
-          if (transaction.type === "expense") {
-            expenses += amount;
-          }
-        });
-
-        return {
-          month: date.toLocaleDateString("en-IN", {
-            month: "short",
-          }),
-          income,
-          expenses,
-        };
-      }
-    );
-  }, [transactions, chartMonths]);
-
-  /*
-   * =========================================================
-   * CHART SCALE
-   * =========================================================
-   */
+  /* =========================================================
+     CHART SCALE
+     ========================================================= */
 
   const maxCashFlow = Math.max(
     ...monthlyCashFlow.flatMap((month) => [
@@ -564,11 +675,9 @@ function Dashboard() {
     1
   );
 
-  /*
-   * =========================================================
-   * AI ANALYSIS
-   * =========================================================
-   */
+  /* =========================================================
+     AI ANALYSIS
+     ========================================================= */
 
   const handleAIAnalysis = async () => {
     const token = localStorage.getItem("token");
@@ -665,11 +774,9 @@ function Dashboard() {
     }
   };
 
-  /*
-   * =========================================================
-   * LOGOUT
-   * =========================================================
-   */
+  /* =========================================================
+     LOGOUT
+     ========================================================= */
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -678,27 +785,17 @@ function Dashboard() {
     navigate("/");
   };
 
-  /*
-   * =========================================================
-   * HEALTH PROGRESS
-   * =========================================================
-   */
-
   const healthProgress =
     `${financialHealth.score}%`;
 
-  /*
-   * =========================================================
-   * RENDER
-   * =========================================================
-   */
+  /* =========================================================
+     RENDER
+     ========================================================= */
 
   return (
     <div className="dashboard-page">
 
-      {/* =====================================================
-          SIDEBAR
-          ===================================================== */}
+      {/* SIDEBAR */}
 
       <aside
         className={
@@ -853,9 +950,7 @@ function Dashboard() {
 
       </aside>
 
-      {/* =====================================================
-          MOBILE OVERLAY
-          ===================================================== */}
+      {/* MOBILE OVERLAY */}
 
       {sidebarOpen && (
         <div
@@ -866,9 +961,7 @@ function Dashboard() {
         />
       )}
 
-      {/* =====================================================
-          MAIN
-          ===================================================== */}
+      {/* MAIN */}
 
       <main className="dashboard-main">
 
@@ -914,9 +1007,7 @@ function Dashboard() {
           id="overview"
         >
 
-          {/* =================================================
-              WELCOME
-              ================================================= */}
+          {/* WELCOME */}
 
           <div className="welcome-section">
 
@@ -931,14 +1022,13 @@ function Dashboard() {
               </p>
 
               <h2>
-                Welcome back,{" "}
-                {userName} 👋
+                Welcome back, {userName} 👋
               </h2>
 
               <p>
-                Here's a clear view of
-                your business finances
-                and financial health.
+                Here's a clear view of your
+                business finances and
+                financial health.
               </p>
 
             </div>
@@ -967,34 +1057,23 @@ function Dashboard() {
 
           {error && (
             <div className="dashboard-alert">
-
               <ShieldCheck size={16} />
-
               <span>{error}</span>
-
             </div>
           )}
 
-          {/* =================================================
-              STAT CARDS
-              ================================================= */}
+          {/* STATS */}
 
           <div className="stats-grid">
-
-            {/* BALANCE */}
 
             <div className="stat-card">
 
               <div className="stat-top">
-
-                <span>
-                  Total Balance
-                </span>
+                <span>Total Balance</span>
 
                 <div className="stat-icon">
                   <Wallet size={18} />
                 </div>
-
               </div>
 
               <h3>
@@ -1005,33 +1084,23 @@ function Dashboard() {
               </h3>
 
               <div className="stat-change positive-change">
-
                 <ArrowUpRight size={13} />
-
                 Live
-
                 <span>
                   from transactions
                 </span>
-
               </div>
 
             </div>
 
-            {/* INCOME */}
-
             <div className="stat-card">
 
               <div className="stat-top">
-
-                <span>
-                  Total Income
-                </span>
+                <span>Total Income</span>
 
                 <div className="stat-icon">
                   <TrendingUp size={18} />
                 </div>
-
               </div>
 
               <h3>
@@ -1042,33 +1111,23 @@ function Dashboard() {
               </h3>
 
               <div className="stat-change positive-change">
-
                 <TrendingUp size={13} />
-
                 Revenue
-
                 <span>
                   recorded income
                 </span>
-
               </div>
 
             </div>
 
-            {/* EXPENSES */}
-
             <div className="stat-card">
 
               <div className="stat-top">
-
-                <span>
-                  Total Expenses
-                </span>
+                <span>Total Expenses</span>
 
                 <div className="stat-icon expense-icon">
                   <ArrowDownRight size={18} />
                 </div>
-
               </div>
 
               <h3>
@@ -1079,33 +1138,23 @@ function Dashboard() {
               </h3>
 
               <div className="stat-change negative-change">
-
                 <ArrowDownRight size={13} />
-
                 Spending
-
                 <span>
                   recorded expenses
                 </span>
-
               </div>
 
             </div>
 
-            {/* SAVINGS */}
-
             <div className="stat-card">
 
               <div className="stat-top">
-
-                <span>
-                  Savings Rate
-                </span>
+                <span>Savings Rate</span>
 
                 <div className="stat-icon">
                   <Target size={18} />
                 </div>
-
               </div>
 
               <h3>
@@ -1116,80 +1165,173 @@ function Dashboard() {
               </h3>
 
               <div className="stat-change positive-change">
-
                 <CheckCircle2 size={13} />
-
                 Calculated
-
                 <span>
                   from live data
                 </span>
-
               </div>
 
             </div>
 
           </div>
 
-          {/* =================================================
-              FINANCIAL HEALTH
-              ================================================= */}
+          {/* FINANCIAL HEALTH */}
 
           <div className="financial-health-card">
 
-            <div className="health-copy">
+            <div className="health-main">
 
-              <div className="health-icon">
-                <ShieldCheck size={21} />
-              </div>
+              <div className="health-copy">
 
-              <div>
+                <div className="health-icon">
+                  <ShieldCheck size={21} />
+                </div>
 
-                <span className="section-eyebrow">
-                  FINSIGHT HEALTH SCORE
-                </span>
+                <div>
 
-                <div className="health-title-row">
-
-                  <h3>
-                    {financialHealth.label}
-                  </h3>
-
-                  <span className="health-pill">
-                    {financialHealth.status}
+                  <span className="section-eyebrow">
+                    FINSIGHT HEALTH SCORE
                   </span>
+
+                  <div className="health-title-row">
+
+                    <h3>
+                      {financialHealth.label}
+                    </h3>
+
+                    <span className="health-pill">
+                      {financialHealth.status}
+                    </span>
+
+                  </div>
+
+                  <p>
+                    {financialHealth.description}
+                  </p>
 
                 </div>
 
-                <p>
-                  {financialHealth.description}
-                </p>
+              </div>
+
+              <div className="health-meter">
+
+                <div
+                  className="health-ring"
+                  style={{
+                    "--health-progress":
+                      healthProgress,
+                  }}
+                >
+                  <div className="health-ring-content">
+                    <strong>
+                      {financialHealth.score}
+                    </strong>
+
+                    <span>
+                      /100
+                    </span>
+                  </div>
+                </div>
+
+                <div className="health-grade">
+                  <span>Grade</span>
+
+                  <strong>
+                    {financialHealth.grade}
+                  </strong>
+                </div>
 
               </div>
 
             </div>
 
-            <div className="health-meter">
+            <div className="health-breakdown">
 
-              <div
-                className="health-ring"
-                style={{
-                  "--health-progress":
-                    healthProgress,
-                }}
-              >
+              <div className="health-breakdown-header">
 
                 <div>
+                  <h4>
+                    Score breakdown
+                  </h4>
 
-                  <strong>
-                    {financialHealth.score}
-                  </strong>
-
-                  <span>
-                    /100
-                  </span>
-
+                  <p>
+                    Based on your recorded
+                    financial activity
+                  </p>
                 </div>
+
+                <span className="health-total">
+                  {financialHealth.score}/100
+                </span>
+
+              </div>
+
+              <div className="health-components">
+
+                {financialHealth.components.map(
+                  (component) => {
+
+                    const percentage =
+                      component.max > 0
+                        ? (component.score /
+                            component.max) *
+                          100
+                        : 0;
+
+                    return (
+                      <div
+                        className="health-component"
+                        key={component.label}
+                      >
+
+                        <div className="health-component-top">
+
+                          <div>
+                            <strong>
+                              {component.label}
+                            </strong>
+
+                            <span>
+                              {component.description}
+                            </span>
+                          </div>
+
+                          <strong>
+                            {component.score}/
+                            {component.max}
+                          </strong>
+
+                        </div>
+
+                        <div className="health-component-track">
+
+                          <div
+                            className="health-component-fill"
+                            style={{
+                              width: `${percentage}%`,
+                            }}
+                          />
+
+                        </div>
+
+                      </div>
+                    );
+                  }
+                )}
+
+              </div>
+
+              <div className="health-method">
+
+                <ShieldCheck size={15} />
+
+                <span>
+                  Score combines savings,
+                  expense control, cash-flow
+                  stability and recent
+                  transaction activity.
+                </span>
 
               </div>
 
@@ -1197,36 +1339,27 @@ function Dashboard() {
 
           </div>
 
-          {/* =================================================
-              HEALTH DETAIL STRIP
-              ================================================= */}
+          {/* HEALTH DETAIL */}
 
           <div className="health-detail-grid">
 
             <div className="health-detail-item">
-
-              <span>
-                Savings
-              </span>
+              <span>Savings</span>
 
               <strong>
-                {healthMetrics.savingsStatus}
-              </strong>
-
-              <small>
                 {financialSummary.savingsRate.toFixed(
                   1
                 )}
-                % savings rate
-              </small>
+                %
+              </strong>
 
+              <small>
+                retained from income
+              </small>
             </div>
 
             <div className="health-detail-item">
-
-              <span>
-                Cash Flow
-              </span>
+              <span>Cash Flow</span>
 
               <strong>
                 {healthMetrics.cashFlowStatus}
@@ -1237,59 +1370,48 @@ function Dashboard() {
                 {formatCurrency(
                   financialSummary.balance
                 )}{" "}
-                net
+                net position
               </small>
-
             </div>
 
             <div className="health-detail-item">
-
-              <span>
-                Expense Control
-              </span>
+              <span>Expense Ratio</span>
 
               <strong>
-                {healthMetrics.expenseControl}
-              </strong>
-
-              <small>
                 {financialSummary.expenseRatio.toFixed(
                   1
                 )}
-                % of income
-              </small>
+                %
+              </strong>
 
+              <small>
+                of recorded income
+              </small>
             </div>
 
             <div className="health-detail-item">
-
-              <span>
-                Transactions
-              </span>
+              <span>Activity</span>
 
               <strong>
                 {financialSummary.totalTransactions}
               </strong>
 
               <small>
-                {financialSummary.pendingCount > 0
-                  ? `${financialSummary.pendingCount} pending`
-                  : "All recorded"}
+                recorded transaction
+                {financialSummary.totalTransactions ===
+                1
+                  ? ""
+                  : "s"}
               </small>
-
             </div>
 
           </div>
 
-          {/* =================================================
-              MAIN GRID
-              ================================================= */}
+          {/* MAIN GRID */}
 
           <div className="dashboard-grid">
 
-            {/* =================================================
-                CASH FLOW
-                ================================================= */}
+            {/* CASH FLOW */}
 
             <div
               className="dashboard-card chart-card"
@@ -1299,15 +1421,11 @@ function Dashboard() {
               <div className="card-header">
 
                 <div>
-
-                  <h3>
-                    Cash Flow
-                  </h3>
+                  <h3>Cash Flow</h3>
 
                   <p>
                     Income vs expenses over time
                   </p>
-
                 </div>
 
                 <select
@@ -1320,7 +1438,6 @@ function Dashboard() {
                     )
                   }
                 >
-
                   <option value={6}>
                     Last 6 months
                   </option>
@@ -1328,7 +1445,6 @@ function Dashboard() {
                   <option value={12}>
                     Last 12 months
                   </option>
-
                 </select>
 
               </div>
@@ -1336,7 +1452,6 @@ function Dashboard() {
               <div className="chart-summary-row">
 
                 <div>
-
                   <span>
                     Net cash flow
                   </span>
@@ -1347,11 +1462,9 @@ function Dashboard() {
                       financialSummary.balance
                     )}
                   </strong>
-
                 </div>
 
                 <div>
-
                   <span>
                     Expense ratio
                   </span>
@@ -1362,7 +1475,6 @@ function Dashboard() {
                     )}
                     %
                   </strong>
-
                 </div>
 
               </div>
@@ -1399,9 +1511,7 @@ function Dashboard() {
                     )}
                   </span>
 
-                  <span>
-                    ₹0
-                  </span>
+                  <span>₹0</span>
 
                 </div>
 
@@ -1505,9 +1615,7 @@ function Dashboard() {
 
             </div>
 
-            {/* =================================================
-                AI INSIGHT
-                ================================================= */}
+            {/* AI */}
 
             <div
               className="dashboard-card ai-card"
@@ -1534,11 +1642,8 @@ function Dashboard() {
                 </div>
 
                 <span className="ai-live-badge">
-
                   <span className="ai-live-dot" />
-
                   LIVE
-
                 </span>
 
               </div>
@@ -1580,27 +1685,19 @@ function Dashboard() {
               <div className="ai-mini-grid">
 
                 <div>
-
-                  <span>
-                    Health
-                  </span>
+                  <span>Health</span>
 
                   <strong>
                     {financialHealth.score}/100
                   </strong>
-
                 </div>
 
                 <div>
-
-                  <span>
-                    Top category
-                  </span>
+                  <span>Top category</span>
 
                   <strong>
                     {topExpense?.category || "—"}
                   </strong>
-
                 </div>
 
               </div>
@@ -1608,13 +1705,11 @@ function Dashboard() {
               <div className="ai-recommendation">
 
                 <div className="recommendation-title">
-
                   <Target size={15} />
 
                   <span>
                     Recommendation
                   </span>
-
                 </div>
 
                 <p>
@@ -1679,11 +1774,8 @@ function Dashboard() {
                     </div>
 
                     <div className="ai-analysis-status">
-
                       <BrainCircuit size={15} />
-
                       AI Generated
-
                     </div>
 
                   </div>
@@ -1717,18 +1809,15 @@ function Dashboard() {
                             aiAnalysis.message
                           ).risk && (
                             <p>
-
                               <strong>
                                 Risk:
                               </strong>{" "}
-
                               {
                                 (
                                   aiAnalysis.aiAnalysis ||
                                   aiAnalysis.message
                                 ).risk
                               }
-
                             </p>
                           )}
 
@@ -1737,18 +1826,15 @@ function Dashboard() {
                             aiAnalysis.message
                           ).action && (
                             <p>
-
                               <strong>
                                 Action:
                               </strong>{" "}
-
                               {
                                 (
                                   aiAnalysis.aiAnalysis ||
                                   aiAnalysis.message
                                 ).action
                               }
-
                             </p>
                           )}
 
@@ -1766,23 +1852,16 @@ function Dashboard() {
                   <div className="ai-analysis-stats">
 
                     <div className="ai-analysis-stat">
-
-                      <span>
-                        Transactions
-                      </span>
+                      <span>Transactions</span>
 
                       <strong>
                         {aiAnalysis.transactionCount ??
                           transactions.length}
                       </strong>
-
                     </div>
 
                     <div className="ai-analysis-stat">
-
-                      <span>
-                        Income
-                      </span>
+                      <span>Income</span>
 
                       <strong>
                         ₹
@@ -1791,14 +1870,10 @@ function Dashboard() {
                             financialSummary.income
                         )}
                       </strong>
-
                     </div>
 
                     <div className="ai-analysis-stat">
-
-                      <span>
-                        Expenses
-                      </span>
+                      <span>Expenses</span>
 
                       <strong>
                         ₹
@@ -1807,14 +1882,10 @@ function Dashboard() {
                             financialSummary.expenses
                         )}
                       </strong>
-
                     </div>
 
                     <div className="ai-analysis-stat">
-
-                      <span>
-                        Balance
-                      </span>
+                      <span>Balance</span>
 
                       <strong>
                         ₹
@@ -1823,7 +1894,6 @@ function Dashboard() {
                             financialSummary.balance
                         )}
                       </strong>
-
                     </div>
 
                   </div>
@@ -1831,10 +1901,7 @@ function Dashboard() {
                   <div className="ai-analysis-details">
 
                     <div className="ai-detail-item">
-
-                      <span>
-                        Savings Rate
-                      </span>
+                      <span>Savings Rate</span>
 
                       <strong>
                         {Number(
@@ -1843,12 +1910,10 @@ function Dashboard() {
                         ).toFixed(1)}
                         %
                       </strong>
-
                     </div>
 
                     {aiAnalysis.highestExpenseCategory && (
                       <div className="ai-detail-item">
-
                         <span>
                           Highest Expense
                         </span>
@@ -1863,9 +1928,7 @@ function Dashboard() {
                           {formatCurrency(
                             aiAnalysis.highestExpenseAmount
                           )}
-
                         </strong>
-
                       </div>
                     )}
 
@@ -1875,13 +1938,11 @@ function Dashboard() {
                     <div className="ai-analysis-recommendation">
 
                       <div className="recommendation-title">
-
                         <BrainCircuit size={15} />
 
                         <span>
                           AI Recommendation
                         </span>
-
                       </div>
 
                       <p>
@@ -1898,9 +1959,7 @@ function Dashboard() {
 
           </div>
 
-          {/* =================================================
-              LOWER GRID
-              ================================================= */}
+          {/* LOWER GRID */}
 
           <div className="lower-grid">
 
@@ -1911,7 +1970,6 @@ function Dashboard() {
               <div className="card-header">
 
                 <div>
-
                   <h3>
                     Spending Overview
                   </h3>
@@ -1920,18 +1978,14 @@ function Dashboard() {
                     Where your recorded
                     expenses are going
                   </p>
-
                 </div>
 
                 <Link
                   to="/analytics"
                   className="card-link"
                 >
-
                   View analytics
-
                   <ChevronRight size={13} />
-
                 </Link>
 
               </div>
@@ -1942,15 +1996,10 @@ function Dashboard() {
                   <div className="top-spend">
 
                     <div className="top-spend-icon">
-
-                      <CircleDollarSign
-                        size={19}
-                      />
-
+                      <CircleDollarSign size={19} />
                     </div>
 
                     <div>
-
                       <span>
                         Top expense category
                       </span>
@@ -1958,16 +2007,13 @@ function Dashboard() {
                       <strong>
                         {topExpense.category}
                       </strong>
-
                     </div>
 
                     <div className="top-spend-amount">
-
                       ₹
                       {formatCurrency(
                         topExpense.amount
                       )}
-
                     </div>
 
                   </div>
@@ -2043,14 +2089,13 @@ function Dashboard() {
 
             </div>
 
-            {/* RECENT ACTIVITY */}
+            {/* RECENT */}
 
             <div className="dashboard-card recent-card">
 
               <div className="card-header">
 
                 <div>
-
                   <h3>
                     Recent Activity
                   </h3>
@@ -2059,18 +2104,14 @@ function Dashboard() {
                     Your latest recorded
                     transactions
                   </p>
-
                 </div>
 
                 <Link
                   to="/transactions"
                   className="card-link"
                 >
-
                   View all
-
                   <ChevronRight size={13} />
-
                 </Link>
 
               </div>
@@ -2079,11 +2120,9 @@ function Dashboard() {
 
                 {loadingTransactions ? (
                   <div className="empty-state">
-
                     <p>
                       Loading transactions...
                     </p>
-
                   </div>
                 ) : recentTransactions.length ===
                   0 ? (
@@ -2146,7 +2185,8 @@ function Dashboard() {
                               {" • "}
 
                               {formatDate(
-                                transaction.transaction_date
+                                transaction.transaction_date ||
+                                  transaction.created_at
                               )}
 
                               {isPending && (
@@ -2192,9 +2232,7 @@ function Dashboard() {
 
           </div>
 
-          {/* =================================================
-              QUICK ACTIONS
-              ================================================= */}
+          {/* QUICK ACTIONS */}
 
           <div className="dashboard-quick-actions">
 
@@ -2206,7 +2244,6 @@ function Dashboard() {
               <Receipt size={18} />
 
               <div>
-
                 <strong>
                   Manage Transactions
                 </strong>
@@ -2215,7 +2252,6 @@ function Dashboard() {
                   Add, update and review
                   financial records
                 </span>
-
               </div>
 
               <ChevronRight size={16} />
@@ -2230,7 +2266,6 @@ function Dashboard() {
               <BarChart3 size={18} />
 
               <div>
-
                 <strong>
                   Open Analytics
                 </strong>
@@ -2239,7 +2274,6 @@ function Dashboard() {
                   Explore detailed financial
                   performance
                 </span>
-
               </div>
 
               <ChevronRight size={16} />
@@ -2254,7 +2288,6 @@ function Dashboard() {
               <Sparkles size={18} />
 
               <div>
-
                 <strong>
                   Ask FinSight AI
                 </strong>
@@ -2263,7 +2296,6 @@ function Dashboard() {
                   Get answers about your
                   finances
                 </span>
-
               </div>
 
               <ChevronRight size={16} />
@@ -2272,9 +2304,7 @@ function Dashboard() {
 
           </div>
 
-          {/* =================================================
-              FOOTER
-              ================================================= */}
+          {/* FOOTER */}
 
           <div className="dashboard-footer-note">
 

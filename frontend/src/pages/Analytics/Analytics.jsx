@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import {
   ArrowDownRight,
+  ArrowLeft,
   ArrowUpRight,
   BarChart3,
   TrendingUp,
   Wallet,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "./Analytics.css";
 
 const API_URL = "http://127.0.0.1:5100";
+
 function Analytics() {
+  const navigate = useNavigate();
+
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,7 +31,7 @@ function Analytics() {
 
       try {
         const response = await fetch(
-          API_URL + "/api/analytics",
+          `${API_URL}/api/analytics`,
           {
             method: "GET",
             headers: {
@@ -47,6 +52,7 @@ function Analytics() {
         setAnalytics(data.analytics);
       } catch (err) {
         console.error("Analytics error:", err);
+
         setError(
           err.message || "Unable to load analytics."
         );
@@ -116,32 +122,50 @@ function Analytics() {
 
   return (
     <div className="analytics-page">
+
       {/* HEADER */}
       <header className="analytics-header">
-        <div>
-          <p className="analytics-label">
-            FINANCIAL INTELLIGENCE
-          </p>
 
-          <h1>Analytics</h1>
+        <div className="analytics-header-left">
 
-          <p>
-            Analyze your financial performance and
-            spending patterns.
-          </p>
+          {/* BACK BUTTON */}
+          <button
+            className="analytics-back-button"
+            onClick={() => navigate("/dashboard")}
+            aria-label="Back to dashboard"
+          >
+            <ArrowLeft size={20} />
+          </button>
+
+          <div>
+            <p className="analytics-label">
+              FINANCIAL INTELLIGENCE
+            </p>
+
+            <h1>Analytics</h1>
+
+            <p>
+              Analyze your financial performance and
+              spending patterns.
+            </p>
+          </div>
+
         </div>
 
         <div className="analytics-period">
-  {new Date().toLocaleDateString("en-IN", {
-    month: "long",
-    year: "numeric",
-  })}
-</div>
+          {new Date().toLocaleDateString("en-IN", {
+            month: "long",
+            year: "numeric",
+          })}
+        </div>
+
       </header>
 
       {/* SUMMARY CARDS */}
       <section className="analytics-stats">
+
         <div className="analytics-stat-card">
+
           <div className="analytics-stat-top">
             <span>Total Income</span>
 
@@ -158,9 +182,11 @@ function Analytics() {
             <ArrowUpRight size={15} />
             Money received
           </p>
+
         </div>
 
         <div className="analytics-stat-card">
+
           <div className="analytics-stat-top">
             <span>Total Expenses</span>
 
@@ -177,9 +203,11 @@ function Analytics() {
             <ArrowDownRight size={15} />
             Money spent
           </p>
+
         </div>
 
         <div className="analytics-stat-card">
+
           <div className="analytics-stat-top">
             <span>Balance</span>
 
@@ -196,9 +224,11 @@ function Analytics() {
             <TrendingUp size={15} />
             Current balance
           </p>
+
         </div>
 
         <div className="analytics-stat-card">
+
           <div className="analytics-stat-top">
             <span>Savings Rate</span>
 
@@ -215,22 +245,29 @@ function Analytics() {
             <TrendingUp size={15} />
             Income retained
           </p>
+
         </div>
+
       </section>
 
       {/* MAIN ANALYTICS GRID */}
       <section className="analytics-grid">
+
         {/* CASH FLOW */}
         <div className="analytics-card cash-flow-card">
+
           <div className="analytics-card-header">
+
             <div>
               <h2>Monthly Cash Flow</h2>
+
               <p>
                 Income vs expenses over time.
               </p>
             </div>
 
             <div className="cash-flow-legend">
+
               <span>
                 <i className="income-dot" />
                 Income
@@ -240,7 +277,9 @@ function Analytics() {
                 <i className="expense-dot" />
                 Expenses
               </span>
+
             </div>
+
           </div>
 
           {monthlyCashFlow.length === 0 ? (
@@ -249,7 +288,9 @@ function Analytics() {
             </div>
           ) : (
             <div className="cash-flow-chart">
+
               {monthlyCashFlow.map((month) => {
+
                 const incomeHeight =
                   (Number(month.income || 0) /
                     maxCashFlow) *
@@ -265,7 +306,9 @@ function Analytics() {
                     className="cash-flow-month"
                     key={month.month}
                   >
+
                     <div className="cash-flow-bars">
+
                       <div
                         className="cash-bar income-bar"
                         style={{
@@ -293,25 +336,33 @@ function Analytics() {
                           month.expenses
                         )}`}
                       />
+
                     </div>
 
                     <span>{month.month}</span>
+
                   </div>
                 );
               })}
+
             </div>
           )}
+
         </div>
 
         {/* CATEGORY EXPENSES */}
         <div className="analytics-card category-card">
+
           <div className="analytics-card-header">
+
             <div>
               <h2>Spending by Category</h2>
+
               <p>
                 Where your money is going.
               </p>
             </div>
+
           </div>
 
           {categoryExpenses.length === 0 ? (
@@ -320,7 +371,9 @@ function Analytics() {
             </div>
           ) : (
             <div className="category-list">
+
               {categoryExpenses.map((category) => {
+
                 const percentage =
                   totalCategoryExpenses > 0
                     ? (Number(category.total) /
@@ -333,7 +386,9 @@ function Analytics() {
                     className="category-item"
                     key={category.category}
                   >
+
                     <div className="category-info">
+
                       <strong>
                         {category.category}
                       </strong>
@@ -341,43 +396,56 @@ function Analytics() {
                       <span>
                         ₹{formatCurrency(category.total)}
                       </span>
+
                     </div>
 
                     <div className="category-progress">
+
                       <div
                         style={{
                           width:
                             `${percentage}%`,
                         }}
                       />
+
                     </div>
 
                     <small>
                       {percentage.toFixed(1)}%
                     </small>
+
                   </div>
                 );
               })}
+
             </div>
           )}
+
         </div>
+
       </section>
 
       {/* FINANCIAL SUMMARY */}
       <section className="analytics-card financial-summary-card">
+
         <div className="analytics-card-header">
+
           <div>
             <h2>Financial Summary</h2>
+
             <p>
               A quick overview of your current
               financial position.
             </p>
           </div>
+
         </div>
 
         <div className="summary-details">
+
           <div>
             <span>Total Transactions</span>
+
             <strong>
               {summary.totalTransactions}
             </strong>
@@ -385,6 +453,7 @@ function Analytics() {
 
           <div>
             <span>Income</span>
+
             <strong>
               ₹{formatCurrency(summary.income)}
             </strong>
@@ -392,6 +461,7 @@ function Analytics() {
 
           <div>
             <span>Expenses</span>
+
             <strong>
               ₹{formatCurrency(summary.expenses)}
             </strong>
@@ -399,12 +469,16 @@ function Analytics() {
 
           <div>
             <span>Net Balance</span>
+
             <strong>
               ₹{formatCurrency(summary.balance)}
             </strong>
           </div>
+
         </div>
+
       </section>
+
     </div>
   );
 }
