@@ -222,50 +222,8 @@
 }
 
 /* =========================
-   MOBILE
+   PROFILE MODAL
 ========================= */
-
-@media (max-width: 700px) {
-  .settings-header {
-    padding: 28px 20px 24px;
-  }
-
-  .settings-title h1 {
-    font-size: 27px;
-  }
-
-  .settings-main {
-    width: calc(100% - 24px);
-    margin: 20px auto;
-  }
-
-  .settings-section-title {
-    padding: 22px 20px;
-  }
-
-  .settings-row {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
-    padding: 20px;
-  }
-
-  .settings-value {
-    margin-left: 55px;
-    text-align: left;
-  }
-
-  .settings-logout {
-    margin-left: 55px;
-  }
-
-  .back-dashboard {
-    margin-bottom: 30px;
-  }
-}
-/* ============================= */
-/* PROFILE MODAL */
-/* ============================= */
 
 .settings-modal-overlay {
   position: fixed;
@@ -335,6 +293,10 @@
   background: #e9ebef;
 }
 
+/* =========================
+   FORM
+========================= */
+
 .settings-form {
   display: flex;
   flex-direction: column;
@@ -378,6 +340,10 @@
   cursor: not-allowed;
 }
 
+/* =========================
+   SAVE BUTTON
+========================= */
+
 .settings-save-button {
   width: 100%;
 
@@ -400,17 +366,17 @@
   font-weight: 600;
 
   cursor: pointer;
-}
-/* =========================================
-   HEADER + BACK BUTTON
-   ========================================= */
 
-.settings-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 28px;
+  transition: 0.2s ease;
 }
+
+.settings-save-button:hover {
+  background: #2a2e38;
+}
+
+/* =========================
+   HEADER + BACK BUTTON
+========================= */
 
 .settings-header-left {
   display: flex;
@@ -462,7 +428,44 @@
   display: none;
 }
 
+/* =========================
+   MOBILE
+========================= */
+
 @media (max-width: 700px) {
+  .settings-header {
+    padding: 28px 20px 24px;
+  }
+
+  .settings-title h1 {
+    font-size: 27px;
+  }
+
+  .settings-main {
+    width: calc(100% - 24px);
+    margin: 20px auto;
+  }
+
+  .settings-section-title {
+    padding: 22px 20px;
+  }
+
+  .settings-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .settings-value {
+    margin-left: 55px;
+    text-align: left;
+  }
+
+  .settings-logout {
+    margin-left: 55px;
+  }
+
   .settings-header-left {
     gap: 12px;
   }
@@ -471,7 +474,26 @@
     width: 40px;
     height: 40px;
   }
+
+  .settings-modal-overlay {
+    padding: 16px;
+  }
+
+  .settings-modal {
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .settings-modal-header h2 {
+    font-size: 20px;
+  }
 }
 
-.settings-save-button:hover {
-  background: #2a2e38
+/* =========================
+   AI ASSISTANT PAGE
+========================= */
+
+.ai-assistant-page {
+  min-height: calc(100vh - 72px);
+  padding: 32px;
+}
