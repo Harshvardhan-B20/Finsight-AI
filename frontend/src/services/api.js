@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://127.0.0.1:5100/api";
+const API_BASE_URL = "https://finsight-ai-6082.onrender.com/api";
+
 // ========================================
 // REGISTER USER
 // ========================================
@@ -38,7 +39,8 @@ export const registerUser = async (userData) => {
 
     if (error instanceof TypeError) {
       throw new Error(
-"Unable to connect to FinSight AI backend. Make sure the backend server is running on port 5100."      );
+        "Unable to connect to FinSight AI backend."
+      );
     }
 
     throw error;
@@ -82,11 +84,15 @@ export const loginUser = async (credentials) => {
     }
 
     if (!data.token) {
-      throw new Error("Login succeeded but authentication token was not received.");
+      throw new Error(
+        "Login succeeded but authentication token was not received."
+      );
     }
 
     if (!data.user) {
-      throw new Error("Login succeeded but user information was not received.");
+      throw new Error(
+        "Login succeeded but user information was not received."
+      );
     }
 
     return data;
@@ -95,7 +101,7 @@ export const loginUser = async (credentials) => {
 
     if (error instanceof TypeError) {
       throw new Error(
-        "Unable to connect to FinSight AI backend. Make sure the backend server is running on port 5000."
+        "Unable to connect to FinSight AI backend."
       );
     }
 
@@ -141,7 +147,7 @@ export const getCurrentUser = async (token) => {
 
     if (error instanceof TypeError) {
       throw new Error(
-        "Unable to connect to FinSight AI backend. Make sure the backend server is running on port 5000."
+        "Unable to connect to FinSight AI backend."
       );
     }
 
