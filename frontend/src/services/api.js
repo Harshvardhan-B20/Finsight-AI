@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://finsight-ai-6082.onrender.com/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5100/api";
 // ========================================
 // REGISTER USER
 // ========================================
