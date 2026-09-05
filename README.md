@@ -2,201 +2,243 @@
 
 **AI-Powered Financial Controller for Startups and Growing Businesses**
 
-FinSight AI is a full-stack financial management application designed to
-help businesses monitor cash flow, manage transactions, analyze
-financial performance, reconcile records, and receive actionable
-financial insights from their data.
+> A full-stack financial management platform built with **React, Node.js, Express.js, PostgreSQL, REST APIs, JWT authentication, financial analytics, transaction reconciliation, and AI-assisted insights.**
 
-------------------------------------------------------------------------
+FinSight AI helps businesses monitor cash flow, manage transactions, analyze financial performance, reconcile financial records, and receive actionable insights from their transaction data.
+
+**📸 Screenshots:** See the [`Screenshots/`](./Screenshots) directory
+**📂 Repository:** This GitHub repository
+
+---
 
 ## Overview
 
-FinSight AI combines a modern React dashboard with a Node.js/Express
-REST API and PostgreSQL database.
+FinSight AI is a full-stack financial management application that combines a modern **React + Vite frontend**, **Node.js/Express.js REST API**, and **PostgreSQL database**.
 
-The application provides:
+The platform provides:
 
--   Secure user authentication
--   Transaction management
--   Financial dashboard and KPIs
--   Cash-flow analytics
--   Expense-category analysis
--   Transaction reconciliation
--   Financial insights based on account data
--   Account/settings management
--   A professional public landing page
+* Secure user authentication
+* Financial dashboard and KPI tracking
+* Transaction management
+* Cash-flow analytics
+* Expense-category analysis
+* Transaction reconciliation
+* AI-assisted financial insights
+* Account and profile management
+* Public landing page
 
-The project is designed as a practical full-stack application with a
-focus on financial visibility and AI-assisted decision support.
+The application is designed around a practical business use case: giving users a centralized view of financial activity while combining traditional financial analytics with AI-assisted decision support.
 
-------------------------------------------------------------------------
+---
+
+## Engineering Highlights
+
+* Built a full-stack application using **React, Node.js, Express.js, and PostgreSQL**
+* Implemented **JWT-based authentication** with protected API routes
+* Designed user-scoped transaction data using a relational PostgreSQL model
+* Built **RESTful APIs** for authentication, transactions, analytics, reconciliation, and AI insights
+* Implemented financial KPI calculations including balance, savings rate, cash flow, and expense categories
+* Built a transaction reconciliation workflow with matched and pending transaction states
+* Structured the backend using **controllers, models, routes, middleware, and services**
+* Implemented a backend financial insight service that analyzes authenticated user transaction data
+* Created a responsive financial dashboard and analytics interface using React
+* Separated frontend API communication through a dedicated service layer
+
+---
 
 ## Key Features
 
 ### 1. Authentication
 
--   User registration
--   User login
--   JWT-based authentication
--   Protected API routes
--   Current-user retrieval
--   Logout
+FinSight AI provides account authentication and protected access to financial data.
+
+* User registration
+* User login
+* JWT-based authentication
+* Protected API routes
+* Current-user retrieval
+* Profile management
+* Logout/session controls
+* Password hashing before database storage
+
+---
 
 ### 2. Financial Dashboard
 
-The dashboard provides an at-a-glance view of:
+The dashboard provides an at-a-glance overview of a user's financial activity.
 
--   Total balance
--   Total income
--   Total expenses
--   Savings rate
--   Monthly cash flow
--   Recent transactions
--   Financial insights
+Key metrics include:
 
-All financial figures are calculated from the authenticated user's
-transaction data.
+* Total balance
+* Total income
+* Total expenses
+* Savings rate
+* Monthly cash flow
+* Recent transactions
+* Financial insights
+
+Financial figures are calculated from the authenticated user's stored transaction data.
+
+---
 
 ### 3. Transaction Management
 
-Users can:
+Users can manage their financial transactions directly from the application.
 
--   Add income transactions
--   Add expense transactions
--   Assign categories
--   Set transaction dates
--   Track transaction status
--   Delete transactions
+Capabilities include:
 
-Transactions are stored in PostgreSQL and associated with the
-authenticated user.
+* Add income transactions
+* Add expense transactions
+* Assign transaction categories
+* Set transaction dates
+* Track transaction status
+* View transaction history
+* Delete transactions
 
-### 4. Analytics
+Transactions are stored in PostgreSQL and associated with the authenticated user through `user_id`.
 
-FinSight AI calculates:
+---
 
--   Total income
--   Total expenses
--   Balance
--   Savings rate
--   Total transaction count
--   Monthly income and expenses
--   Expense totals by category
+### 4. Financial Analytics
 
-### 5. Reconciliation
+FinSight AI calculates and presents financial performance metrics including:
 
-The reconciliation module provides:
+* Total income
+* Total expenses
+* Current balance
+* Savings rate
+* Transaction count
+* Monthly income and expenses
+* Cash-flow trends
+* Expense totals by category
 
--   Total transactions
--   Matched/completed transactions
--   Pending transactions
--   Total transaction amount
--   Matched amount
--   Pending amount
+These calculations are generated from transaction data rather than hard-coded dashboard values.
 
-### 6. Financial Intelligence
+---
 
-The AI insight layer analyzes account-level financial information and
-provides:
+### 5. Transaction Reconciliation
 
--   Financial summary
--   Recommendations
--   Risk indication
--   Suggested actions
--   Key expense information
+The reconciliation module provides visibility into transaction processing and matching status.
 
-The insight is generated from the user's actual stored transaction data
-rather than static dashboard numbers.
+It includes:
 
-### 7. Account Settings
+* Total transactions
+* Matched/completed transactions
+* Pending transactions
+* Total transaction amount
+* Matched amount
+* Pending amount
 
-Users can view and manage their FinSight account information, including:
+This creates a foundation for future integrations with bank statements, payment processors, and settlement systems.
 
--   Profile information
--   Registered email
--   Account type
--   Currency
--   Session/logout controls
+---
 
-------------------------------------------------------------------------
+### 6. AI-Assisted Financial Intelligence
+
+The financial insight layer analyzes account-level transaction information and produces:
+
+* Financial summaries
+* Recommendations
+* Risk indications
+* Suggested actions
+* Key expense information
+
+The insight workflow uses the authenticated user's stored transaction data to calculate relevant financial metrics before generating the resulting financial guidance.
+
+---
+
+### 7. Account & Settings
+
+Users can view and manage account information including:
+
+* Profile information
+* Registered email
+* Account type
+* Currency
+* Session/logout controls
+
+---
 
 ## Technology Stack
 
 ### Frontend
 
--   React
--   Vite
--   JavaScript
--   React Router
--   Lucide React
--   CSS
+* **React**
+* **Vite**
+* **JavaScript**
+* **React Router**
+* **Lucide React**
+* **CSS**
 
 ### Backend
 
--   Node.js
--   Express.js
--   REST APIs
--   JWT
--   bcrypt/bcryptjs
--   dotenv
--   CORS
+* **Node.js**
+* **Express.js**
+* **REST APIs**
+* **JWT**
+* **bcrypt/bcryptjs**
+* **dotenv**
+* **CORS**
 
 ### Database
 
--   PostgreSQL
--   SQL
+* **PostgreSQL**
+* **SQL**
 
 ### AI
 
--   Financial insight/AI service layer
--   Backend-side AI integration architecture
+* Backend financial insight service
+* AI-assisted financial analysis architecture
+* Transaction-data-driven financial insights
 
-------------------------------------------------------------------------
+---
 
 ## System Architecture
 
-``` text
-                    ┌─────────────────────┐
-                    │       User          │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   React + Vite      │
-                    │     Frontend        │
-                    └──────────┬──────────┘
-                               │ REST API
-                               ▼
-                    ┌─────────────────────┐
-                    │   Express.js API    │
-                    │      Backend        │
-                    └──────────┬──────────┘
-                               │
-             ┌─────────────────┼─────────────────┐
-             │                 │                 │
-             ▼                 ▼                 ▼
-      Authentication     Transactions       Analytics
-             │                 │                 │
-             └─────────────────┼─────────────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │     PostgreSQL      │
-                    │      Database       │
-                    └─────────────────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │ Financial Insight   │
-                    │      Service        │
-                    └─────────────────────┘
+```text
+                         ┌─────────────────────┐
+                         │        User         │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │    React + Vite     │
+                         │      Frontend       │
+                         └──────────┬──────────┘
+                                    │
+                               REST API
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │   Express.js API    │
+                         │      Backend        │
+                         └──────────┬──────────┘
+                                    │
+              ┌─────────────────────┼─────────────────────┐
+              │                     │                     │
+              ▼                     ▼                     ▼
+       Authentication        Transactions            Analytics
+              │                     │                     │
+              └─────────────────────┼─────────────────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │     PostgreSQL      │
+                         │      Database       │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Financial Insight   │
+                         │      Service        │
+                         └─────────────────────┘
 ```
 
-------------------------------------------------------------------------
+---
 
 ## Project Structure
 
-``` text
+```text
 finsight-ai/
 │
 ├── frontend/
@@ -248,16 +290,18 @@ finsight-ai/
 │   ├── server.js
 │   └── package.json
 │
+├── Screenshots/
+├── docs/
 └── README.md
 ```
 
-------------------------------------------------------------------------
+---
 
 ## Database Design
 
-The primary relationship is:
+The primary relationship between users and transactions is:
 
-``` text
+```text
 Users
   │
   │ 1 ───────── N
@@ -272,12 +316,12 @@ Stores account information and authentication data.
 
 Important fields include:
 
--   `id`
--   `name`
--   `email`
--   `password`
--   `account_type`
--   `created_at`
+* `id`
+* `name`
+* `email`
+* `password`
+* `account_type`
+* `created_at`
 
 ### Transactions
 
@@ -285,151 +329,155 @@ Stores financial activity.
 
 Important fields include:
 
--   `id`
--   `user_id`
--   `type`
--   `description`
--   `category`
--   `amount`
--   `status`
--   `transaction_date`
--   `created_at`
+* `id`
+* `user_id`
+* `type`
+* `description`
+* `category`
+* `amount`
+* `status`
+* `transaction_date`
+* `created_at`
 
 Each transaction belongs to a user through `user_id`.
 
-------------------------------------------------------------------------
+---
 
 ## API Endpoints
 
 ### Authentication
 
-  Method   Endpoint               Purpose
-  -------- ---------------------- ------------------------
-  POST     `/api/auth/register`   Register a user
-  POST     `/api/auth/login`      Authenticate a user
-  GET      `/api/auth/me`         Get authenticated user
-  PUT      `/api/auth/profile`    Update profile
+| Method | Endpoint             | Purpose                |
+| ------ | -------------------- | ---------------------- |
+| POST   | `/api/auth/register` | Register a user        |
+| POST   | `/api/auth/login`    | Authenticate a user    |
+| GET    | `/api/auth/me`       | Get authenticated user |
+| PUT    | `/api/auth/profile`  | Update profile         |
 
 ### Transactions
 
-  Method   Endpoint                         Purpose
-  -------- -------------------------------- ---------------------------
-  GET      `/api/transactions`              Get user's transactions
-  POST     `/api/transactions`              Create a transaction
-  DELETE   `/api/transactions/:id`          Delete a transaction
-  PUT      `/api/transactions/:id/status`   Update transaction status
+| Method | Endpoint                       | Purpose                   |
+| ------ | ------------------------------ | ------------------------- |
+| GET    | `/api/transactions`            | Get user's transactions   |
+| POST   | `/api/transactions`            | Create a transaction      |
+| DELETE | `/api/transactions/:id`        | Delete a transaction      |
+| PUT    | `/api/transactions/:id/status` | Update transaction status |
 
 ### Analytics
 
-  Method   Endpoint           Purpose
-  -------- ------------------ -------------------------
-  GET      `/api/analytics`   Get financial analytics
+| Method | Endpoint         | Purpose                 |
+| ------ | ---------------- | ----------------------- |
+| GET    | `/api/analytics` | Get financial analytics |
 
 ### Reconciliation
 
-  Method   Endpoint                Purpose
-  -------- ----------------------- -------------------------
-  GET      `/api/reconciliation`   Get reconciliation data
+| Method | Endpoint              | Purpose                 |
+| ------ | --------------------- | ----------------------- |
+| GET    | `/api/reconciliation` | Get reconciliation data |
 
 ### AI
 
-  Method   Endpoint             Purpose
-  -------- -------------------- -----------------------------
-  GET      `/api/ai/insights`   Generate financial insights
+| Method | Endpoint           | Purpose                     |
+| ------ | ------------------ | --------------------------- |
+| GET    | `/api/ai/insights` | Generate financial insights |
 
 Protected endpoints require:
 
-``` text
+```text
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-------------------------------------------------------------------------
+---
 
 ## Authentication Flow
 
-``` text
+```text
 User
   │
   ▼
-Login
+Login / Register
   │
   ▼
-Express Auth Route
+Express Authentication Route
   │
   ▼
-Validate credentials
+Validate Credentials
   │
   ▼
 Generate JWT
   │
   ▼
-Frontend stores session token
+Frontend Stores Session Token
   │
   ▼
-Protected API requests
+Protected API Requests
   │
   ▼
 authMiddleware
   │
   ▼
-Identify authenticated user
+Identify Authenticated User
+  │
+  ▼
+User-Scoped Data Access
 ```
 
-Passwords are hashed before storage and are never returned as part of
-normal user-profile responses.
+Passwords are hashed before storage and are not returned as part of normal user-profile responses.
 
-------------------------------------------------------------------------
+---
 
 ## Analytics Flow
 
-``` text
+```text
 PostgreSQL Transactions
           │
           ▼
      Analytics Model
           │
-    ┌─────┼───────────┐
-    ▼     ▼           ▼
- Income Expenses   Categories
-    │     │           │
-    └─────┼───────────┘
+     ┌────┼──────────────┐
+     ▼    ▼              ▼
+   Income Expenses    Categories
+     │    │              │
+     └────┼──────────────┘
           ▼
    Analytics Controller
           │
           ▼
-      REST API
+       REST API
           │
           ▼
     React Analytics UI
 ```
 
-------------------------------------------------------------------------
+---
 
 ## AI Insight Flow
 
-``` text
+```text
 Authenticated User
-       │
-       ▼
+        │
+        ▼
 GET /api/ai/insights
-       │
-       ▼
-Fetch user's transactions
-       │
-       ▼
-Calculate financial metrics
-       │
-       ▼
-AI / Financial Insight Service
-       │
-       ▼
-Summary + Recommendation
-       │
-       ▼
+        │
+        ▼
+Fetch User's Transactions
+        │
+        ▼
+Calculate Financial Metrics
+        │
+        ▼
+Financial Insight Service
+        │
+        ▼
+Summary + Recommendations
+        │
+        ▼
 Dashboard AI Insight
 ```
 
-------------------------------------------------------------------------
+The insight pipeline is connected to authenticated transaction data rather than relying on static dashboard values.
+
+---
 
 ## Environment Variables
 
@@ -437,7 +485,7 @@ Create a `.env` file inside `backend/`.
 
 Example:
 
-``` env
+```env
 PORT=5100
 DB_HOST=localhost
 DB_PORT=5432
@@ -447,35 +495,53 @@ DB_PASSWORD=your_postgres_password
 JWT_SECRET=your_secure_jwt_secret
 ```
 
-Never commit `.env` or API keys to GitHub.
+**Never commit `.env`, passwords, JWT secrets, API keys, or other credentials to GitHub.**
 
-------------------------------------------------------------------------
+---
 
 ## Running the Project
+
+### Prerequisites
+
+Make sure the following are installed:
+
+* Node.js
+* npm
+* PostgreSQL
 
 ### 1. Start PostgreSQL
 
 Make sure PostgreSQL is running and the `finsight` database exists.
 
-### 2. Start Backend
+### 2. Configure Environment Variables
 
-``` bash
+Create:
+
+```text
+backend/.env
+```
+
+and provide the required PostgreSQL and JWT configuration.
+
+### 3. Start the Backend
+
+```bash
 cd backend
 npm install
 node server.js
 ```
 
-Backend:
+The backend runs on:
 
-``` text
+```text
 http://127.0.0.1:5100
 ```
 
-### 3. Start Frontend
+### 4. Start the Frontend
 
 Open another terminal:
 
-``` bash
+```bash
 cd frontend
 npm install
 npm run dev
@@ -483,102 +549,96 @@ npm run dev
 
 Vite will provide the local frontend URL.
 
-------------------------------------------------------------------------
+---
 
-## Production Considerations
+## Production Hardening
 
-Before deploying FinSight AI publicly:
+For production-scale deployment, the following hardening steps are recommended:
 
--   Move secrets to secure environment variables
--   Restrict CORS to the production frontend domain
--   Use HTTPS
--   Use a strong JWT secret
--   Add production database credentials
--   Add rate limiting
--   Add request validation
--   Add structured logging
--   Add centralized error monitoring
--   Use a production PostgreSQL instance
+* Store secrets using secure environment variables
+* Restrict CORS to trusted production domains
+* Enforce HTTPS
+* Use strong JWT secrets
+* Use managed/production PostgreSQL infrastructure
+* Add request validation
+* Add rate limiting
+* Add structured application logging
+* Add centralized error monitoring
+* Implement production backup and recovery procedures
 
-------------------------------------------------------------------------
+---
 
 ## Testing Checklist
 
 ### Authentication
 
--   [x] Register
--   [x] Login
--   [x] Protected routes
--   [x] Logout
--   [x] Current-user retrieval
+* [x] Register
+* [x] Login
+* [x] Protected routes
+* [x] Logout
+* [x] Current-user retrieval
 
 ### Transactions
 
--   [x] Create transaction
--   [x] View transactions
--   [x] Delete transaction
--   [x] Update transaction status
+* [x] Create transaction
+* [x] View transactions
+* [x] Delete transaction
+* [x] Update transaction status
 
 ### Dashboard
 
--   [x] Financial summary
--   [x] Cash-flow visualization
--   [x] Recent transactions
--   [x] Financial insight
+* [x] Financial summary
+* [x] Cash-flow visualization
+* [x] Recent transactions
+* [x] Financial insight
 
 ### Analytics
 
--   [x] Income
--   [x] Expenses
--   [x] Balance
--   [x] Savings rate
--   [x] Monthly cash flow
--   [x] Category analysis
+* [x] Income
+* [x] Expenses
+* [x] Balance
+* [x] Savings rate
+* [x] Monthly cash flow
+* [x] Category analysis
 
 ### Reconciliation
 
--   [x] Transaction summary
--   [x] Matched transactions
--   [x] Pending transactions
+* [x] Transaction summary
+* [x] Matched transactions
+* [x] Pending transactions
 
 ### Settings
 
--   [x] Profile information
--   [x] Account information
--   [x] Save/update functionality
--   [x] Logout
+* [x] Profile information
+* [x] Account information
+* [x] Save/update functionality
+* [x] Logout
 
-------------------------------------------------------------------------
+---
 
 ## Future Enhancements
 
-Potential future versions could include:
+Potential future improvements include:
 
--   Interactive AI financial assistant/chatbot
--   Automated bank/UPI integrations
--   Razorpay settlement reconciliation
--   Cash-flow forecasting
--   Financial anomaly detection
--   Tax-line matching
--   Advanced financial reports
--   CSV/PDF report exports
--   Role-based access control
--   Notifications and financial alerts
--   Production cloud deployment
+* Automated bank/UPI integrations
+* Cash-flow forecasting
+* Financial anomaly detection
+* Automated settlement reconciliation
+* Advanced financial reporting
 
-------------------------------------------------------------------------
+---
 
 ## Project Objective
 
-FinSight AI was built to demonstrate how a full-stack application can
-combine:
+FinSight AI was built to demonstrate how a practical business application can combine:
 
-**React + REST APIs + authentication + PostgreSQL + financial
-analytics + AI-assisted decision support**
+**React + Node.js + Express.js + REST APIs + JWT authentication + PostgreSQL + financial analytics + reconciliation + AI-assisted decision support**
 
-into one practical business-focused system.
+into a unified full-stack financial management platform.
 
-------------------------------------------------------------------------
+The project focuses on both **user-facing financial visibility** and **backend engineering fundamentals**, including authentication, relational data modeling, API design, financial calculations, and service-oriented backend structure.
+
+---
 
 ## Author
 
