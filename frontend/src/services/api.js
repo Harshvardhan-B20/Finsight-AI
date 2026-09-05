@@ -1,5 +1,4 @@
 const API_BASE_URL = "https://finsight-ai-6082.onrender.com/api";
-
 // ========================================
 // REGISTER USER
 // ========================================
