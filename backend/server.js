@@ -21,13 +21,12 @@ const allowedOrigins = [
   "http://localhost:5179",
   "http://localhost:5180",
   "http://localhost:5181",
-  "https://finsight-ai-harsh-demo.vercel.app",
 ];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
-  // Allow the Vercel frontend and local development
+  // Allow local frontend development
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
@@ -117,9 +116,7 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ========================================
 
-// IMPORTANT:
-// Render requires the server to listen on 0.0.0.0
-// and use Render's PORT environment variable.
+// Start the API server.
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`FinSight AI Backend running on port ${PORT}`);
