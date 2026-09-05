@@ -429,7 +429,9 @@ function Transactions() {
                           </div>
 
                           <strong>
-                            {transaction.description}
+                            {String(transaction.description || "")
+                              .replace(/\s*\[BUILDATHON-SYNTHETIC\]/g, "")
+                              .trim()}
                           </strong>
                         </div>
                       </td>
@@ -453,8 +455,8 @@ function Transactions() {
                             : "table-expense"
                         }
                       >
-                        {isIncome ? "+" : "-"}₹
-                        {formatCurrency(transaction.amount)}
+                        {isIncome ? "+" : "−"}₹
+                        {formatCurrency(Math.abs(Number(transaction.amount || 0)))}
                       </td>
 
                       <td>

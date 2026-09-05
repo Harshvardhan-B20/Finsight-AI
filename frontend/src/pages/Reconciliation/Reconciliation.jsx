@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import "./Reconciliation.css";
 
-const API_URL = "http://127.0.0.1:5100";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5100/api";
 
 function Reconciliation() {
   const [reconciliation, setReconciliation] = useState(null);
@@ -22,7 +22,7 @@ function Reconciliation() {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/reconciliation`,
+        `${API_URL}/reconciliation`,
         {
           method: "GET",
           headers: {
@@ -75,7 +75,7 @@ function Reconciliation() {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/transactions/${transactionId}/status`,
+        `${API_URL}/transactions/${transactionId}/status`,
         {
           method: "PUT",
           headers: {
